@@ -32,22 +32,24 @@ export default function GstPurchaseReportPage() {
   const totalExcl = totalPurchases - totalGst;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">GST Purchase Report</h1>
+    <div className="p-4 sm:p-6">
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-5">GST Purchase Report</h1>
 
-      <div className="bg-white rounded-xl shadow p-4 mb-4 flex flex-wrap gap-3 items-end">
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <div className="bg-white rounded-xl shadow p-3 sm:p-4 mb-4 flex flex-col sm:flex-row flex-wrap gap-3 items-stretch sm:items-end">
+        <div className="flex gap-3 flex-wrap">
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" />
+          </div>
         </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
-          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        </div>
-        <button onClick={fetchPurchases} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Filter</button>
+        <button onClick={fetchPurchases} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 sm:self-end">Filter</button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
         <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
           <p className="text-xs text-gray-500 mb-1">Total Purchases (Incl. GST)</p>
           <p className="text-2xl font-bold text-blue-700">৳{totalPurchases.toLocaleString()}</p>
@@ -62,7 +64,38 @@ export default function GstPurchaseReportPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      {/* Mobile card view */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">Loading...</div>
+        ) : purchases.length === 0 ? (
+          <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">No purchase data found</div>
+        ) : purchases.map((p, i) => {
+          const total = p.totalAmount || p.total || 0;
+          const gst = p.taxAmount || total * GST_RATE;
+          const sub = total - gst;
+          return (
+            <div key={p._id} className="bg-white rounded-xl shadow p-4 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-mono text-blue-600 text-sm font-semibold">#{p.referenceNo || p._id.slice(-6).toUpperCase()}</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.paymentStatus === "paid" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                  {p.paymentStatus || p.status || "received"}
+                </span>
+              </div>
+              <p className="text-sm text-gray-700">{p.supplier?.name || "—"} · {new Date(p.purchaseDate || p.createdAt).toLocaleDateString()}</p>
+              <div className="grid grid-cols-3 gap-2 text-xs border-t border-gray-100 pt-2">
+                <div><p className="text-gray-400">Subtotal</p><p className="font-semibold text-gray-700">৳{sub.toFixed(2)}</p></div>
+                <div><p className="text-gray-400">GST</p><p className="font-semibold text-orange-600">৳{gst.toFixed(2)}</p></div>
+                <div><p className="text-gray-400">Total</p><p className="font-semibold text-gray-800">৳{total.toLocaleString()}</p></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-xl shadow overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="bg-gray-50 text-left">
@@ -115,6 +148,7 @@ export default function GstPurchaseReportPage() {
             </tfoot>
           )}
         </table>
+        </div>
       </div>
     </div>
   );

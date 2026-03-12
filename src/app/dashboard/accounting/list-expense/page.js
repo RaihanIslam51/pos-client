@@ -63,7 +63,37 @@ function ListExpenseContent() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Mobile card view */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center"><div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]"></div></div>
+        ) : expenses.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400 text-sm"><p className="text-3xl mb-2">&#x1F4B8;</p>No expenses found</div>
+        ) : expenses.map((exp, idx) => (
+          <div key={exp._id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">{exp.title}</p>
+                <p className="text-xs text-gray-500">{exp.category?.name || "—"}</p>
+              </div>
+              <p className="text-base font-bold text-red-600">৳{(exp.amount || 0).toFixed(2)}</p>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className={`px-2 py-0.5 rounded-full font-medium ${exp.paymentMethod === "cash" ? "bg-green-100 text-green-700" : exp.paymentMethod === "bank" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}>
+                {exp.paymentMethod === "mobile_banking" ? "Mobile" : exp.paymentMethod}
+              </span>
+              <span className="text-gray-400">{new Date(exp.date).toLocaleDateString()}</span>
+            </div>
+            <button onClick={() => handleDelete(exp._id)} disabled={deletingId === exp._id}
+              className="w-full text-red-500 text-xs font-medium py-1.5 border border-red-200 rounded-lg hover:bg-red-50">
+              {deletingId === exp._id ? "Deleting..." : "Delete"}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>

@@ -89,8 +89,37 @@ function BankingTransactionContent() {
         </div>
       )}
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Mobile card view */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center"><div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]"></div></div>
+        ) : transactions.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400 text-sm"><p className="text-3xl mb-2">💳</p>No transactions found</div>
+        ) : transactions.map((tx, idx) => (
+          <div key={tx._id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${tx.type === "deposit" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                {tx.type === "deposit" ? "↑ Deposit" : "↓ Withdraw"}
+              </span>
+              <p className={`text-base font-bold ${tx.type === "deposit" ? "text-green-600" : "text-red-600"}`}>
+                {tx.type === "deposit" ? "+" : "-"}৳{tx.amount.toFixed(2)}
+              </p>
+            </div>
+            <p className="text-sm text-gray-700">{tx.bankAccount ? `${tx.bankAccount.bankName} — ${tx.bankAccount.accountName}` : "—"}</p>
+            <div className="flex items-center justify-between text-xs text-gray-400">
+              <span>{tx.reference || "No reference"}</span>
+              <span>{new Date(tx.date).toLocaleDateString()}</span>
+            </div>
+            <button onClick={() => handleDelete(tx._id)} disabled={deletingId === tx._id}
+              className="w-full text-red-500 text-xs font-medium py-1.5 border border-red-200 rounded-lg hover:bg-red-50">
+              {deletingId === tx._id ? "Deleting..." : "Delete"}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>

@@ -42,7 +42,7 @@ function AddEmployeeContent() {
         <h2 className="text-lg font-bold text-gray-800 mb-5">Add Employee</h2>
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label>
               <input name="name" value={form.name} onChange={handleChange} placeholder="Employee full name"
@@ -54,7 +54,7 @@ function AddEmployeeContent() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
               <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone number"
@@ -66,7 +66,7 @@ function AddEmployeeContent() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
               <input name="department" value={form.department} onChange={handleChange} placeholder="e.g. Sales"
@@ -78,7 +78,7 @@ function AddEmployeeContent() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Salary (৳)</label>
               <input name="salary" type="number" min="0" step="0.01" value={form.salary} onChange={handleChange} placeholder="0.00"

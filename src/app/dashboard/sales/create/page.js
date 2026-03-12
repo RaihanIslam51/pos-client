@@ -72,8 +72,16 @@ function ItemRow({ item, products, onSelectProduct, onUpdate, onRemove }) {
               className="bg-white border border-gray-300 shadow-xl max-h-52 overflow-y-auto">
               {sugg.map((p, i) => (
                 <li key={i} onMouseDown={() => { onSelectProduct(p); setOpen(false); setLocalSearch(""); }}
-                  className="px-3 py-2 cursor-pointer hover:bg-blue-50 flex items-center justify-between text-sm gap-3">
-                  <div className="min-w-0">
+                  className="px-3 py-2 cursor-pointer hover:bg-blue-50 flex items-center gap-3 text-sm">
+                  {p.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.image} alt={p.name} className="w-8 h-8 rounded object-cover border border-gray-100 shrink-0" />
+                  ) : (
+                    <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center shrink-0">
+                      <span className="text-sm">📦</span>
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium text-gray-800 truncate">{p.name}</p>
                     {p.category?.name && <p className="text-xs text-gray-400">{p.category.name}</p>}
                   </div>
@@ -148,7 +156,7 @@ export default function CreateSalesPage() {
 
   useEffect(() => {
     api.getCustomers().then((r) => setCustomers(r.data)).catch(() => {});
-    api.getProducts().then((r) => setProducts(r.data)).catch(() => {});
+    api.getProducts().then((r) => setProducts((r.data || []).filter((p) => p.stock > 0))).catch(() => {});
   }, []);
 
   useEffect(() => {

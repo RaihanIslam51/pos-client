@@ -23,6 +23,16 @@ body {
   box-sizing: border-box;
 }
 
+/* Ensure touch targets are large enough on mobile */
+@media (max-width: 767px) {
+  button, select, input[type="submit"] {
+    min-height: 40px;
+  }
+  input, select, textarea {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;

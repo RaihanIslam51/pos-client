@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useSettings } from "@/lib/SettingsContext";
 
 const IconDashboard = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,6 +262,7 @@ const reportSubItems = [
       { label: "Analytics Report", href: "/dashboard/report/analytics-report" },
       { label: "Category Wise Stock", href: "/dashboard/report/category-wise-stock" },
       { label: "Brand Wise Report", href: "/dashboard/report/brand-wise-report" },
+      { label: "📊 Comprehensive Report", href: "/dashboard/report/comprehensive-report" },
     ],
   },
 ];
@@ -305,6 +307,7 @@ const navItems = [
 
 export default function Sidebar({ mobileOpen = false, onClose }) {
   const pathname = usePathname();
+  const { settings } = useSettings();
   const [collapsed, setCollapsed] = useState(false);
   const [productsOpen, setProductsOpen] = useState(() => false);
   const [purchaseOpen, setPurchaseOpen] = useState(() => false);
@@ -388,12 +391,22 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
       <div className="flex items-center justify-between p-4 border-b border-blue-700 shrink-0">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-[#1E3A8A]" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z" />
-              </svg>
-            </div>
-            <span className="text-lg font-bold tracking-wide">POS Pro</span>
+            {settings.logo ? (
+              <img
+                src={settings.logo}
+                alt="logo"
+                className="w-8 h-8 rounded-lg object-contain bg-white p-0.5"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-[#1E3A8A]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z" />
+                </svg>
+              </div>
+            )}
+            <span className="text-lg font-bold tracking-wide truncate max-w-[140px]">
+              {settings.shopName || "POS Pro"}
+            </span>
           </div>
         )}
         <div className="flex items-center gap-1">

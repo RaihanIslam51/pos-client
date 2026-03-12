@@ -46,47 +46,81 @@ export default function ListTaskPage() {
   const statusColor = { pending: "bg-gray-100 text-gray-600", "in-progress": "bg-blue-100 text-blue-700", completed: "bg-green-100 text-green-700" };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Task List</h1>
-        <Link href="/dashboard/task/add-task" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 font-medium">
-          + Add Task
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Task List</h1>
+        <Link href="/dashboard/task/add-task" className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 font-medium w-full sm:w-auto justify-center sm:justify-start">
+          <span>+</span> Add Task
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
         {[
           { label: "Pending", val: tasks.filter((t) => t.status === "pending").length, color: "gray" },
           { label: "In Progress", val: tasks.filter((t) => t.status === "in-progress").length, color: "blue" },
           { label: "Completed", val: tasks.filter((t) => t.status === "completed").length, color: "green" },
         ].map((s) => (
-          <div key={s.label} className={`bg-${s.color}-50 rounded-xl p-4 border border-${s.color}-100`}>
-            <p className="text-xs text-gray-500">{s.label}</p>
-            <p className={`text-2xl font-bold text-${s.color}-700`}>{s.val}</p>
+          <div key={s.label} className={`bg-${s.color}-50 rounded-xl p-3 sm:p-4 border border-${s.color}-100`}>
+            <p className="text-xs text-gray-500 truncate">{s.label}</p>
+            <p className={`text-xl sm:text-2xl font-bold text-${s.color}-700`}>{s.val}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl shadow p-4 mb-4 flex flex-wrap gap-3 items-end">
-        <form onSubmit={(e) => { e.preventDefault(); fetchTasks(); }} className="flex gap-2">
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tasks..." className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48" />
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Search</button>
+      <div className="bg-white rounded-xl shadow p-3 sm:p-4 mb-4 flex flex-col sm:flex-row flex-wrap gap-3 items-stretch sm:items-end">
+        <form onSubmit={(e) => { e.preventDefault(); fetchTasks(); }} className="flex gap-2 w-full sm:w-auto">
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tasks..." className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 sm:w-48" />
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 shrink-0">Search</button>
         </form>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="in-progress">In Progress</option>
-          <option value="completed">Completed</option>
-        </select>
-        <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="">All Priority</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
+        <div className="flex gap-2 flex-wrap">
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 sm:flex-none">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+          <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 sm:flex-none">
+            <option value="">All Priority</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      {/* Mobile card view */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">Loading...</div>
+        ) : tasks.length === 0 ? (
+          <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">No tasks found</div>
+        ) : tasks.map((task, i) => (
+          <div key={task._id} className="bg-white rounded-xl shadow p-4 space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-800 text-sm">{task.title}</p>
+                {task.description && <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{task.description}</p>}
+              </div>
+              <button onClick={() => handleDelete(task._id)} className="shrink-0 text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Delete</button>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className={`px-2 py-1 rounded-full font-medium capitalize ${priorityColor[task.priority] || "bg-gray-100 text-gray-600"}`}>{task.priority}</span>
+              <span className="text-gray-500">{task.assignedTo || "Unassigned"}</span>
+              {task.dueDate && <span className="text-gray-400">Due: {new Date(task.dueDate).toLocaleDateString()}</span>}
+            </div>
+            <select value={task.status} onChange={(e) => handleStatusChange(task._id, e.target.value)}
+              className={`w-full px-2 py-1.5 rounded-lg text-xs font-medium border cursor-pointer ${statusColor[task.status] || "bg-gray-100 text-gray-600"}`}>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="hidden md:block bg-white rounded-xl shadow overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="bg-gray-50 text-left">
@@ -133,6 +167,7 @@ export default function ListTaskPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

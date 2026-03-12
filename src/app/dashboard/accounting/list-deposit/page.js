@@ -62,7 +62,34 @@ function ListDepositContent() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Mobile card view */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center"><div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]"></div></div>
+        ) : deposits.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400 text-sm"><p className="text-3xl mb-2">🏦</p>No deposits found</div>
+        ) : deposits.map((dep, idx) => (
+          <div key={dep._id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <p className="font-semibold text-gray-800 text-sm">{dep.title}</p>
+              <p className="text-base font-bold text-green-600">৳{(dep.amount || 0).toFixed(2)}</p>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className={`px-2 py-0.5 rounded-full font-medium ${dep.paymentMethod === "cash" ? "bg-green-100 text-green-700" : dep.paymentMethod === "bank" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"}`}>
+                {dep.paymentMethod === "mobile_banking" ? "Mobile" : dep.paymentMethod}
+              </span>
+              <span className="text-gray-400">{dep.reference || "No ref"} · {new Date(dep.date).toLocaleDateString()}</span>
+            </div>
+            <button onClick={() => handleDelete(dep._id)} disabled={deletingId === dep._id}
+              className="w-full text-red-500 text-xs font-medium py-1.5 border border-red-200 rounded-lg hover:bg-red-50">
+              {deletingId === dep._id ? "Deleting..." : "Delete"}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>

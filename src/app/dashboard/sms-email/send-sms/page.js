@@ -39,9 +39,9 @@ export default function SendSmsPage() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Send SMS</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="p-4 sm:p-6">
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-5">Send SMS</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <form onSubmit={handleSend} className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-semibold text-gray-700 mb-4">Compose SMS</h2>
           {result && (

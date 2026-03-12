@@ -1,6 +1,38 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-const fetchAPI = async (endpoint, options = {}) => {
+// ─── Cache Engine ──────────────────────────────────────────────────────────────
+// Strategy: fresh → serve from cache | stale → serve stale + revalidate in bg
+//           miss  → fetch, deduplicate concurrent identical requests
+const FRESH_TTL = 2 * 60 * 1000;   // 2 min  – served directly from cache
+const STALE_TTL = 15 * 60 * 1000;  // 15 min – served stale + background refresh
+
+// Near-static routes get a much longer fresh window
+const STATIC_RE = /^\/(categories|brands|units|settings|expense-categories)/;
+const _ttlFor   = (ep) => (STATIC_RE.test(ep) ? 10 * 60 * 1000 : FRESH_TTL);
+
+const _store    = new Map(); // key → { data, ts, ttl }
+const _inflight = new Map(); // key → Promise<data>   (request deduplication)
+const _bgSet    = new Set(); // keys being background-revalidated
+
+const _isFresh = ({ ts, ttl }) => Date.now() - ts < ttl;
+const _isStale = ({ ts, ttl }) => {
+  const age = Date.now() - ts;
+  return age >= ttl && age < STALE_TTL;
+};
+
+// Bust all cache entries whose key shares the same base resource path
+const _invalidate = (endpoint) => {
+  // strip query string, then strip trailing /:id or /:id/action
+  const base = endpoint.split("?")[0].replace(/\/[^/]+(\/[^/]+)?$/, "");
+  for (const key of _store.keys()) {
+    if (key === base || key === endpoint || key.startsWith(base + "?") || key.startsWith(base + "/")) {
+      _store.delete(key);
+    }
+  }
+};
+
+// Low-level fetch (no cache logic)
+const _doFetch = async (endpoint, options = {}) => {
   const response = await fetch(`${API_BASE}${endpoint}`, {
     headers: { "Content-Type": "application/json", ...options.headers },
     ...options,
@@ -8,6 +40,90 @@ const fetchAPI = async (endpoint, options = {}) => {
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || "Request failed");
   return data;
+};
+
+// Cache-aware fetch
+const fetchAPI = async (endpoint, options = {}) => {
+  const isRead = !options.method || options.method === "GET";
+
+  if (isRead) {
+    const cached = _store.get(endpoint);
+
+    // ① Fresh hit – return immediately
+    if (cached && _isFresh(cached)) return cached.data;
+
+    // ② Stale hit – return stale data, kick off background revalidation
+    if (cached && _isStale(cached)) {
+      if (!_bgSet.has(endpoint)) {
+        _bgSet.add(endpoint);
+        _doFetch(endpoint, options)
+          .then((data) => _store.set(endpoint, { data, ts: Date.now(), ttl: _ttlFor(endpoint) }))
+          .catch(() => {}) // silent – stale data is still shown
+          .finally(() => _bgSet.delete(endpoint));
+      }
+      return cached.data;
+    }
+
+    // ③ Deduplicate: if an identical request is already in-flight, share its promise
+    if (_inflight.has(endpoint)) return _inflight.get(endpoint);
+
+    // ④ Cache miss – fetch, populate cache, deduplicate
+    const promise = _doFetch(endpoint, options)
+      .then((data) => {
+        _store.set(endpoint, { data, ts: Date.now(), ttl: _ttlFor(endpoint) });
+        return data;
+      })
+      .finally(() => _inflight.delete(endpoint));
+
+    _inflight.set(endpoint, promise);
+    return promise;
+  }
+
+  // Mutating request (POST / PUT / PATCH / DELETE) – skip cache, then bust
+  const data = await _doFetch(endpoint, options);
+  _invalidate(endpoint);
+  return data;
+};
+
+// Public cache utilities (force-refresh a key, clear everything, etc.)
+export const cacheUtils = {
+  /** Force next read to go to the network */
+  invalidate: (endpoint) => _store.delete(endpoint),
+  /** Clear the entire client-side cache */
+  clear: () => { _store.clear(); _inflight.clear(); _bgSet.clear(); },
+  /** Peek at raw cache store (useful for DevTools) */
+  inspect: () => Object.fromEntries(_store),
+
+  /**
+   * Pre-warm the cache for every major list endpoint in parallel.
+   * Call this once after the user authenticates so all pages open instantly.
+   * Uses Promise.allSettled so one slow/failing endpoint never blocks others.
+   */
+  prefetchAll: () => {
+    const now = new Date();
+    const endpoints = [
+      // ── near-static master data ──────────────────────────────────
+      "/categories", "/brands", "/units", "/settings",
+      "/expense-categories", "/app-users",
+      // ── products & inventory ─────────────────────────────────────
+      "/products", "/inventory", "/inventory/low-stock",
+      // ── people ───────────────────────────────────────────────────
+      "/customers", "/customers/important",
+      "/salespersons", "/suppliers", "/employees",
+      // ── transactions ─────────────────────────────────────────────
+      "/sales", "/purchases", "/quotations", "/warranties",
+      "/expenses", "/deposits",
+      "/bank-accounts", "/bank-transactions",
+      // ── HR & finance ─────────────────────────────────────────────
+      "/salaries", "/loans",
+      // ── tasks & comms ────────────────────────────────────────────
+      "/tasks", "/sms-email",
+      // ── reports ──────────────────────────────────────────────────
+      "/reports/dashboard", "/reports/top-products",
+      `/reports/monthly-chart?year=${now.getFullYear()}&month=${now.getMonth() + 1}`,
+    ];
+    Promise.allSettled(endpoints.map((ep) => fetchAPI(ep)));
+  },
 };
 
 export const api = {
@@ -73,6 +189,7 @@ export const api = {
   createSale: (data) => fetchAPI("/sales", { method: "POST", body: JSON.stringify(data) }),
   updateSale: (id, data) => fetchAPI(`/sales/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteSale: (id) => fetchAPI(`/sales/${id}`, { method: "DELETE" }),
+  bulkDeleteSales: (ids) => fetchAPI("/sales/bulk", { method: "DELETE", body: JSON.stringify({ ids }) }),
   cancelSale: (id) => fetchAPI(`/sales/${id}/cancel`, { method: "PATCH" }),
 
   // Quotations
@@ -100,6 +217,7 @@ export const api = {
   getSalesReport: (params = "") => fetchAPI(`/reports/sales${params}`),
   getTopProducts: () => fetchAPI("/reports/top-products"),
   getMonthlySalesChart: (params = "") => fetchAPI(`/reports/monthly-chart${params}`),
+  getComprehensiveReport: (params = "") => fetchAPI(`/reports/comprehensive${params}`),
 
   // Expense Categories
   getExpenseCategories: (params = "") => fetchAPI(`/expense-categories${params}`),
@@ -133,6 +251,7 @@ export const api = {
   createBankTransaction: (data) => fetchAPI("/bank-transactions", { method: "POST", body: JSON.stringify(data) }),
   deleteBankTransaction: (id) => fetchAPI(`/bank-transactions/${id}`, { method: "DELETE" }),
 
+  
   // Employees
   getEmployees: (params = "") => fetchAPI(`/employees${params}`),
   getEmployee: (id) => fetchAPI(`/employees/${id}`),
@@ -162,6 +281,9 @@ export const api = {
   deleteTask: (id) => fetchAPI(`/tasks/${id}`, { method: "DELETE" }),
   updateTaskStatus: (id, data) => fetchAPI(`/tasks/${id}/status`, { method: "PATCH", body: JSON.stringify(data) }),
 
+  // Auth
+  login: (data) => fetchAPI("/auth/login", { method: "POST", body: JSON.stringify(data) }),
+
   // App Users
   getAppUsers: (params = "") => fetchAPI(`/app-users${params}`),
   getAppUser: (id) => fetchAPI(`/app-users/${id}`),
@@ -174,4 +296,8 @@ export const api = {
   getSmsEmailLogs: (params = "") => fetchAPI(`/sms-email${params}`),
   sendSms: (data) => fetchAPI("/sms-email/sms", { method: "POST", body: JSON.stringify(data) }),
   sendEmail: (data) => fetchAPI("/sms-email/email", { method: "POST", body: JSON.stringify(data) }),
+
+  // Settings
+  getSettings: () => fetchAPI("/settings"),
+  updateSettings: (data) => fetchAPI("/settings", { method: "PUT", body: JSON.stringify(data) }),
 };

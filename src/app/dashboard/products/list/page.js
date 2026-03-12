@@ -110,12 +110,22 @@ function ProductsListContent() {
         ) : products.map((product, idx) => (
           <div key={product._id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
             <div className="flex items-start justify-between gap-3">
-              <div className="flex-1 min-w-0">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                {product.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={product.image} alt={product.name} className="w-12 h-12 rounded-lg object-cover border border-gray-100 shrink-0" />
+                ) : (
+                  <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                    <span className="text-xl">📦</span>
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-800 text-sm truncate">{product.name}</p>
                 {product.barcode && <p className="text-xs text-gray-400 font-mono">{product.barcode}</p>}
                 <div className="flex flex-wrap gap-2 mt-2">
                   {product.category?.name && <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">{product.category.name}</span>}
                   {product.brand?.name && <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">{product.brand.name}</span>}
+                </div>
                 </div>
               </div>
               <span className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${product.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
@@ -165,8 +175,20 @@ function ProductsListContent() {
                 <tr key={product._id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3 text-sm text-gray-400">{idx + 1}</td>
                   <td className="px-4 py-3">
-                    <p className="text-sm font-semibold text-gray-800">{product.name}</p>
-                    <p className="text-xs text-gray-400 font-mono">{product.productCode || product.barcode || "—"}</p>
+                    <div className="flex items-center gap-3">
+                      {product.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={product.image} alt={product.name} className="w-10 h-10 rounded-lg object-cover border border-gray-100 shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                          <span className="text-lg">📦</span>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm font-semibold text-gray-800">{product.name}</p>
+                        <p className="text-xs text-gray-400 font-mono">{product.productCode || product.barcode || "—"}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">{product.category?.name || "—"}</td>
                   <td className="px-4 py-3 text-sm text-gray-700">৳{product.purchasePrice}</td>

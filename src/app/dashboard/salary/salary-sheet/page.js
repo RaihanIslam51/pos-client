@@ -34,10 +34,10 @@ export default function SalarySheetPage() {
   const summary = data?.summary || {};
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Salary Sheet</h1>
+    <div className="p-4 sm:p-6">
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-5">Salary Sheet</h1>
 
-      <div className="bg-white rounded-xl shadow p-4 mb-4 flex gap-4 items-end flex-wrap">
+      <div className="bg-white rounded-xl shadow p-3 sm:p-4 mb-4 flex flex-wrap gap-3 items-end">
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Month</label>
           <select value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -54,25 +54,55 @@ export default function SalarySheetPage() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
         {[
           { label: "Total Employees", value: summary.count || 0, color: "blue" },
           { label: "Total Basic (৳)", value: `৳${(summary.totalBasic || 0).toLocaleString()}`, color: "purple" },
           { label: "Total Net (৳)", value: `৳${(summary.totalNet || 0).toLocaleString()}`, color: "green" },
           { label: "Paid", value: summary.paidCount || 0, color: "emerald" },
         ].map((stat) => (
-          <div key={stat.label} className={`bg-${stat.color}-50 rounded-xl p-4 border border-${stat.color}-100`}>
-            <p className="text-xs text-gray-500 mb-1">{stat.label}</p>
-            <p className={`text-xl font-bold text-${stat.color}-700`}>{stat.value}</p>
+          <div key={stat.label} className={`bg-${stat.color}-50 rounded-xl p-3 sm:p-4 border border-${stat.color}-100`}>
+            <p className="text-xs text-gray-500 mb-1 leading-tight">{stat.label}</p>
+            <p className={`text-lg sm:text-xl font-bold text-${stat.color}-700`}>{stat.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Sheet Table */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      {/* Mobile card view */}
+      <div className="md:hidden space-y-3">
+        <div className="bg-gray-50 rounded-lg px-4 py-2 text-sm font-semibold text-gray-600">
+          Salary Sheet — {months[month - 1]} {year}
+        </div>
+        {loading ? (
+          <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">Loading...</div>
+        ) : salaries.length === 0 ? (
+          <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">No records for this period</div>
+        ) : salaries.map((s, i) => (
+          <div key={s._id} className="bg-white rounded-xl shadow p-4 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">{s.employee?.name || "—"}</p>
+                <p className="text-xs text-gray-400">{s.employee?.department || "—"}</p>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.status === "paid" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>{s.status}</span>
+            </div>
+            <div className="grid grid-cols-4 gap-1 text-xs border-t border-gray-100 pt-2">
+              <div><p className="text-gray-400">Basic</p><p className="font-semibold text-gray-700">৳{s.basicSalary?.toLocaleString()}</p></div>
+              <div><p className="text-gray-400">Bonus</p><p className="font-semibold text-green-600">+৳{s.bonus?.toLocaleString()}</p></div>
+              <div><p className="text-gray-400">Deduct</p><p className="font-semibold text-red-500">-৳{s.deductions?.toLocaleString()}</p></div>
+              <div><p className="text-gray-400">Net</p><p className="font-bold text-blue-700">৳{s.netSalary?.toLocaleString()}</p></div>
+            </div>
+            {s.paidAt && <p className="text-xs text-gray-400">Paid: {new Date(s.paidAt).toLocaleDateString()}</p>}
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-xl shadow overflow-hidden">
         <div className="px-4 py-3 border-b bg-gray-50 font-semibold text-gray-700">
           Salary Sheet — {months[month - 1]} {year}
         </div>
+        <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="bg-gray-50 text-left border-b">
@@ -125,6 +155,7 @@ export default function SalarySheetPage() {
             </tfoot>
           )}
         </table>
+        </div>
       </div>
     </div>
   );

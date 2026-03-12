@@ -73,7 +73,35 @@ function ListBankAccountContent() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Mobile card view */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center"><div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]"></div></div>
+        ) : accounts.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400 text-sm"><p className="text-3xl mb-2">🏦</p>No bank accounts found</div>
+        ) : accounts.map((acc, idx) => (
+          <div key={acc._id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">{acc.bankName}</p>
+                <p className="text-xs text-gray-500">{acc.accountName}</p>
+              </div>
+              <p className="text-base font-bold text-blue-700">৳{(acc.balance || 0).toFixed(2)}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs border-t border-gray-100 pt-2">
+              <div><p className="text-gray-400">Account No.</p><p className="font-medium text-gray-700">{acc.accountNumber}</p></div>
+              <div><p className="text-gray-400">Branch</p><p className="font-medium text-gray-700">{acc.branchName || "—"}</p></div>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <button onClick={() => startEdit(acc)} className="flex-1 text-blue-600 text-xs font-medium py-1.5 border border-blue-200 rounded-lg hover:bg-blue-50">Edit</button>
+              <button onClick={() => handleDelete(acc._id)} disabled={deletingId === acc._id} className="flex-1 text-red-500 text-xs font-medium py-1.5 border border-red-200 rounded-lg hover:bg-red-50">{deletingId === acc._id ? "..." : "Delete"}</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>

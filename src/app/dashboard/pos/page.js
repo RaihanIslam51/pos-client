@@ -56,6 +56,7 @@ export default function POSPage() {
     } catch (err) {}
   };
 
+
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -63,7 +64,7 @@ export default function POSPage() {
       if (search) params.append("search", search);
       if (selectedCategory) params.append("category", selectedCategory);
       const res = await api.getProducts(params.toString() ? `?${params}` : "");
-      setProducts(res.data);
+      setProducts((res.data || []).filter((p) => p.stock > 0));
     } catch (err) {
     } finally {
       setLoading(false);
@@ -342,8 +343,13 @@ export default function POSPage() {
                           </svg>
                         )}
                       </div>
-                      <div className="w-8 h-8 shrink-0 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <span className="text-base">📦</span>
+                      <div className="w-8 h-8 shrink-0 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                        {product.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-base">📦</span>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-800 truncate text-sm">{product.name}</p>

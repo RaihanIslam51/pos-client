@@ -68,7 +68,36 @@ function ListEmployeeContent() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Mobile card view */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center"><div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]"></div></div>
+        ) : employees.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400 text-sm"><p className="text-3xl mb-2">👥</p>No employees found</div>
+        ) : employees.map((emp, idx) => (
+          <div key={emp._id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">{emp.name}</p>
+                <p className="text-xs text-gray-400">{emp.employeeId || ""} {emp.designation ? `· ${emp.designation}` : ""}</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => startEdit(emp)} className="text-blue-500 text-xs font-medium px-2 py-1 border border-blue-200 rounded hover:bg-blue-50">Edit</button>
+                <button onClick={() => handleDelete(emp._id)} disabled={deletingId === emp._id} className="text-red-500 text-xs font-medium px-2 py-1 border border-red-200 rounded hover:bg-red-50">{deletingId === emp._id ? "..." : "Del"}</button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs border-t border-gray-100 pt-2">
+              <div><p className="text-gray-400">Department</p><p className="font-medium text-gray-700">{emp.department || "—"}</p></div>
+              <div><p className="text-gray-400">Phone</p><p className="font-medium text-gray-700">{emp.phone || "—"}</p></div>
+              <div><p className="text-gray-400">Salary</p><p className="font-semibold text-gray-700">৳{(emp.salary || 0).toFixed(2)}</p></div>
+              <div><p className="text-gray-400">Status</p><span className={`px-1.5 py-0.5 rounded-full text-xs ${emp.isActive !== false ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>{emp.isActive !== false ? "Active" : "Inactive"}</span></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
