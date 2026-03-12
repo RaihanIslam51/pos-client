@@ -45,7 +45,7 @@ function SaleViewContent() {
       <style>{`@media print { .no-print { display: none !important; } body { background: white; } }`}</style>
 
       {/* ── Action bar ── */}
-      <div className="no-print flex items-center justify-between mb-5">
+      <div className="no-print flex items-center justify-between gap-3 flex-wrap mb-5">
         <button onClick={() => router.back()}
           className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-[#1E3A8A] transition-colors">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +53,7 @@ function SaleViewContent() {
           </svg>
           Back
         </button>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Link href={`/dashboard/sales/${id}/edit`}
             className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@ function SaleViewContent() {
       </div>
 
       {/* ── Invoice card ── */}
-      <div className="bg-white border border-gray-200 rounded-xl p-8 max-w-2xl mx-auto shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-8 max-w-2xl mx-auto shadow-sm">
 
         {/* Header */}
         <div className="flex justify-between items-start mb-6 pb-4 border-b border-gray-200">
@@ -89,7 +89,7 @@ function SaleViewContent() {
         </div>
 
         {/* Customer + Payment */}
-        <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 text-sm">
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Customer</p>
             <p className="font-medium text-gray-800">{sale.customerName}</p>
@@ -102,7 +102,8 @@ function SaleViewContent() {
         </div>
 
         {/* Items table */}
-        <table className="w-full text-sm mb-6">
+        <div className="overflow-x-auto mb-6">
+        <table className="w-full text-sm min-w-[380px]">
           <thead>
             <tr className="border-b-2 border-[#1E3A8A]">
               <th className="text-left py-2 text-xs font-semibold text-[#1E3A8A]">#</th>
@@ -126,10 +127,11 @@ function SaleViewContent() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {/* Totals */}
         <div className="flex justify-end">
-          <div className="w-56 text-sm space-y-1.5">
+          <div className="w-full sm:w-56 text-sm space-y-1.5">
             <div className="flex justify-between text-gray-600">
               <span>Subtotal</span>
               <span>৳{sale.subtotal.toFixed(2)}</span>

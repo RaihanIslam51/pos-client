@@ -3,23 +3,31 @@ import { useState, useEffect } from "react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import RecentSales from "@/components/dashboard/RecentSales";
 import LowStockAlert from "@/components/dashboard/LowStockAlert";
+import MonthlySalesChart from "@/components/dashboard/MonthlySalesChart";
 import Link from "next/link";
 import { api } from "@/lib/api";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [lowStock, setLowStock] = useState([]);
+  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, lowStockRes] = await Promise.all([
+        const [statsRes, lowStockRes, chartRes] = await Promise.all([
           api.getDashboardStats(),
           api.getLowStock(),
+          api.getMonthlySalesChart(`?year=${now.getFullYear()}&month=${now.getMonth() + 1}`),
         ]);
         setStats(statsRes.data);
         setLowStock(lowStockRes.data);
+        setChartData(chartRes.data || []);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
       } finally {
@@ -45,12 +53,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Welcome Banner */}
-      <div className="bg-linear-to-r from-[#1E3A8A] to-blue-600 rounded-xl p-6 text-white shadow-lg">
-        <h2 className="text-xl font-bold">Welcome back, Admin! 👋</h2>
+      {/* <div className="bg-linear-to-r from-[#1E3A8A] to-blue-600 rounded-xl p-4 lg:p-6 text-white shadow-lg">
+        <h2 className="text-lg lg:text-xl font-bold">Welcome back, Admin! 👋</h2>
         <p className="text-blue-200 text-sm mt-1">Here's what's happening in your store today.</p>
-        <div className="flex gap-3 mt-4">
+        <div className="flex gap-3 mt-4 flex-wrap">
           <Link
             href="/dashboard/pos"
             className="bg-white text-[#1E3A8A] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-50 transition-colors"
@@ -64,7 +72,7 @@ export default function DashboardPage() {
             View Reports
           </Link>
         </div>
-      </div>
+      </div> */}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -115,7 +123,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div>
+      {/* <div>
         <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">Quick Actions</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {quickActions.map((action) => (
@@ -129,17 +137,26 @@ export default function DashboardPage() {
             </Link>
           ))}
         </div>
-      </div>
+      </div> */}
+
+       {/* Monthly Sales Chart */}
+      <MonthlySalesChart
+        data={chartData}
+        month={currentMonth}
+        year={currentYear}
+      />
 
       {/* Recent Sales & Low Stock */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
+        <div className="xl:col-span-2">
           <RecentSales sales={stats?.recentSales || []} />
         </div>
         <div>
           <LowStockAlert products={lowStock} />
         </div>
       </div>
+
+     
     </div>
   );
 }

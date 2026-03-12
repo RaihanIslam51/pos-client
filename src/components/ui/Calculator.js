@@ -87,7 +87,7 @@ function CalcBtn({ label, onClick, cls }) {
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center justify-center rounded-full h-17 w-full text-xl font-normal transition-all duration-75 active:scale-90 select-none ${cls}`}
+      className={`flex items-center justify-center rounded-full h-14 sm:h-16 w-full text-lg sm:text-xl font-normal transition-all duration-75 active:scale-90 select-none touch-manipulation ${cls}`}
     >
       {label}
     </button>
@@ -97,8 +97,20 @@ function CalcBtn({ label, onClick, cls }) {
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function Calculator({ onClose }) {
   const [state, dispatch] = useReducer(reducer, init);
-  const { display, expression, prevValue, pendingOp } = state;
+  const { display, expression, prevValue, pendingOp, resetOnNext } = state;
   const activeOp = prevValue !== null ? pendingOp : null;
+
+  // Live answer preview while typing second operand
+  const liveResult =
+    prevValue !== null && pendingOp !== null && !resetOnNext
+      ? safeCompute(prevValue, pendingOp, display)
+      : null;
+  const showLive = liveResult !== null && liveResult !== display && liveResult !== "Error";
+
+  // Context line: shows "prevValue op" while entering 2nd number, or full expression after =
+  const contextLine = prevValue !== null
+    ? `${prevValue} ${pendingOp}`
+    : expression || "\u00a0";
 
   // Keyboard support — dispatch is stable, so no stale closure issues
   useEffect(() => {
@@ -126,12 +138,12 @@ export default function Calculator({ onClose }) {
       : "bg-orange-500 text-white hover:bg-orange-400";
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-black rounded-[40px] shadow-2xl overflow-hidden select-none" style={{ width: 320 }}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+      <div className="bg-black rounded-[32px] sm:rounded-[40px] shadow-2xl overflow-hidden select-none w-full max-w-[320px] sm:max-w-sm">
 
         {/* Close */}
-        <div className="flex justify-end px-5 pt-5 pb-0">
-          <button onClick={onClose} className="text-gray-700 hover:text-gray-400 transition-colors p-1">
+        <div className="flex justify-end px-4 sm:px-5 pt-4 sm:pt-5 pb-0">
+          <button onClick={onClose} className="text-gray-700 hover:text-gray-400 transition-colors p-2 touch-manipulation">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -139,19 +151,31 @@ export default function Calculator({ onClose }) {
         </div>
 
         {/* Display */}
-        <div className="px-6 pt-2 pb-4 text-right">
-          <p className="text-gray-500 text-sm h-6 truncate">{expression || "\u00a0"}</p>
+        <div className="px-4 sm:px-6 pt-2 pb-3 sm:pb-4 text-right flex flex-col justify-end">
+          {/* Context: shows prevValue + operator, or full expression after = */}
+          <p className="text-gray-500 text-xs sm:text-sm truncate min-h-[18px] sm:min-h-[20px]">
+            {contextLine}
+          </p>
+
+          {/* Current number — always large */}
           <p
             className={`text-white font-thin tracking-tight truncate transition-all ${
-              display.length > 10 ? "text-3xl" : display.length > 7 ? "text-4xl" : display.length > 4 ? "text-5xl" : "text-6xl"
+              display.length > 10 ? "text-2xl sm:text-3xl" : display.length > 7 ? "text-3xl sm:text-4xl" : display.length > 4 ? "text-4xl sm:text-5xl" : "text-5xl sm:text-6xl"
             }`}
           >
             {display}
           </p>
+
+          {/* Live answer preview — small, visible while typing 2nd operand */}
+          <div className={`transition-all duration-150 overflow-hidden ${showLive ? "max-h-10 opacity-100 mt-1" : "max-h-0 opacity-0"}`}>
+            <p className="text-orange-400 text-lg sm:text-xl truncate">
+              = {liveResult}
+            </p>
+          </div>
         </div>
 
         {/* Keyboard */}
-        <div className="grid grid-cols-4 gap-3 px-5 pb-7">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3 px-3 sm:px-5 pb-5 sm:pb-7">
           {/* Row 1 */}
           <CalcBtn label="C"  onClick={() => dispatch({ type: "CLEAR" })}                      cls="bg-[#a5a5a5] text-black hover:brightness-110" />
           <CalcBtn label="⌫"  onClick={() => dispatch({ type: "BACKSPACE" })}                  cls="bg-[#a5a5a5] text-black hover:brightness-110" />
@@ -182,7 +206,7 @@ export default function Calculator({ onClose }) {
           <button
             type="button"
             onClick={() => dispatch({ type: "DIGIT", payload: "0" })}
-            className="col-span-2 flex items-center justify-start pl-7 rounded-full h-17 text-xl font-normal bg-[#333] text-white hover:bg-[#444] transition-all duration-75 active:scale-95"
+            className="col-span-2 flex items-center justify-start pl-5 sm:pl-7 rounded-full h-14 sm:h-16 text-lg sm:text-xl font-normal bg-[#333] text-white hover:bg-[#444] transition-all duration-75 active:scale-95 touch-manipulation"
           >
             0
           </button>
@@ -191,7 +215,8 @@ export default function Calculator({ onClose }) {
         </div>
 
         {/* Keyboard hint */}
-        <p className="text-center text-gray-700 text-[10px] pb-4">Keyboard supported · Esc to close</p>
+        <p className="text-center text-gray-700 text-[10px] pb-3 sm:pb-4 hidden sm:block">Keyboard supported · Esc to close</p>
+        <div className="sm:hidden pb-3" />
       </div>
     </div>
   );

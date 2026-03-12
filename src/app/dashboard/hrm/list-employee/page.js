@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useCallback, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -41,16 +42,17 @@ function ListEmployeeContent() {
       await api.updateEmployee(id, { ...editForm, salary: Number(editForm.salary) || 0 });
       setEditingId(null);
       fetchEmployees();
-    } catch (err) { alert(err.message); } finally { setSavingId(null); }
+    } catch (err) { showError(err.message); } finally { setSavingId(null); }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this employee?")) return;
+    const result = await showConfirm("Delete this employee?");
+    if (!result.isConfirmed) return;
     setDeletingId(id);
     try {
       await api.deleteEmployee(id);
       fetchEmployees();
-    } catch (err) { alert(err.message); } finally { setDeletingId(null); }
+    } catch (err) { showError(err.message); } finally { setDeletingId(null); }
   };
 
   return (

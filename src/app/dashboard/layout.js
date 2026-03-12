@@ -1,5 +1,4 @@
-import Sidebar from "@/components/layout/Sidebar";
-import DashboardShell from "@/components/layout/DashboardShell";
+import LayoutClient from "@/components/layout/LayoutClient";
 
 export const metadata = {
   title: { default: "Dashboard | POS Pro", template: "%s | POS Pro" },
@@ -7,10 +6,5 @@ export const metadata = {
 };
 
 export default function DashboardLayout({ children }) {
-  return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar />
-      <DashboardShell>{children}</DashboardShell>
-    </div>
-  );
+  return <LayoutClient>{children}</LayoutClient>;
 }

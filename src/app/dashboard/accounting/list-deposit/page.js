@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useCallback, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -33,7 +34,7 @@ function ListDepositContent() {
       await api.deleteDeposit(id);
       fetchDeposits();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setDeletingId(null);
     }

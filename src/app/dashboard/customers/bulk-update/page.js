@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { api } from "@/lib/api";
 
@@ -31,7 +32,7 @@ function BulkUpdateContent() {
   const toggleAll = () => setSelected(selected.length === customers.length ? [] : customers.map((c) => c._id));
 
   const handleBulkAction = async () => {
-    if (selected.length === 0) return alert("Select at least one customer");
+    if (selected.length === 0) return showWarning("Select at least one customer");
     const confirmMsg = {
       markImportant: `Mark ${selected.length} customer(s) as VIP?`,
       unmarkImportant: `Remove VIP status from ${selected.length} customer(s)?`,
@@ -51,7 +52,7 @@ function BulkUpdateContent() {
       setSelected([]);
       fetchCustomers();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setProcessing(false);
     }
@@ -84,7 +85,44 @@ function BulkUpdateContent() {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Mobile Cards */}
+        <div className="block md:hidden divide-y divide-gray-100">
+          {loading ? (
+            <div className="text-center py-10">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]"></div>
+            </div>
+          ) : customers.length === 0 ? (
+            <div className="text-center py-12 text-gray-400 text-sm">
+              <p className="text-3xl mb-2">👥</p>No customers found
+            </div>
+          ) : (
+            customers.map((c) => (
+              <div key={c._id}
+                onClick={() => toggleSelect(c._id)}
+                className={`p-4 cursor-pointer transition-colors ${selected.includes(c._id) ? "bg-blue-50" : "hover:bg-gray-50"}`}>
+                <div className="flex items-center gap-3">
+                  <input type="checkbox" checked={selected.includes(c._id)} onChange={() => {}}
+                    className="w-4 h-4 rounded border-gray-300 text-[#1E3A8A] focus:ring-[#1E3A8A] cursor-pointer shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        {c.isImportant && <span className="text-yellow-400 text-sm">★</span>}
+                        <span className="font-semibold text-gray-800 text-sm">{c.name}</span>
+                      </div>
+                      {c.isImportant
+                        ? <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full font-semibold shrink-0">VIP</span>
+                        : <span className="text-xs text-gray-300 shrink-0">—</span>}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-0.5">{c.phone}{c.email ? ` • ${c.email}` : ""}</p>
+                    <p className="text-sm text-gray-700 mt-1">৳{(c.totalPurchase || 0).toFixed(2)}</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">

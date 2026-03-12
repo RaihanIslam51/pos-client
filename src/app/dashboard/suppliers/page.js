@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { api } from "@/lib/api";
@@ -61,20 +62,21 @@ function SuppliersContent() {
       setShowModal(false);
       fetchSuppliers();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this supplier?")) return;
+    const result = await showConfirm("Delete this supplier?");
+    if (!result.isConfirmed) return;
     setDeletingId(id);
     try {
       await api.deleteSupplier(id);
       fetchSuppliers();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setDeletingId(null);
     }

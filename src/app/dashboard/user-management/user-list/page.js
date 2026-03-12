@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import Link from "next/link";
@@ -26,21 +27,22 @@ export default function UserListPage() {
   useEffect(() => { fetchUsers(); }, [roleFilter]);
 
   const handleDeactivate = async (id) => {
-    if (!confirm("Deactivate this user?")) return;
+    const result = await showConfirm("Deactivate this user?");
+    if (!result.isConfirmed) return;
     try {
       await api.deleteAppUser(id);
       fetchUsers();
-    } catch (err) { alert(err.message); }
+    } catch (err) { showError(err.message); }
   };
 
   const handlePasswordChange = async (id) => {
-    if (!newPassword || newPassword.length < 6) { alert("Password must be at least 6 characters"); return; }
+    if (!newPassword || newPassword.length < 6) { showWarning("Password must be at least 6 characters"); return; }
     try {
       await api.changeAppUserPassword(id, { newPassword });
       setChangingPassword(null);
       setNewPassword("");
-      alert("Password changed successfully");
-    } catch (err) { alert(err.message); }
+      showSuccess("Password changed successfully");
+    } catch (err) { showError(err.message); }
   };
 
   const roleColor = { admin: "bg-red-100 text-red-700", manager: "bg-blue-100 text-blue-700", cashier: "bg-green-100 text-green-700" };

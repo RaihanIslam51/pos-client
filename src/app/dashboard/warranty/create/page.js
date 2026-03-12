@@ -295,17 +295,17 @@ function CreateWarrantyContent() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 pt-2 border-t border-gray-100">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2 border-t border-gray-100">
               <Link
                 href="/dashboard/warranty/list"
-                className="px-6 border border-gray-200 rounded-lg py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                className="w-full sm:w-auto text-center px-6 border border-gray-200 rounded-lg py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </Link>
               <button
                 type="submit"
                 disabled={saving}
-                className="px-8 bg-[#1E3A8A] text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-blue-800 disabled:opacity-50 transition-colors"
+                className="w-full sm:w-auto px-8 bg-[#1E3A8A] text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-blue-800 disabled:opacity-50 transition-colors"
               >
                 {saving ? "Saving..." : "Save"}
               </button>

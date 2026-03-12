@@ -33,7 +33,7 @@ export default function CreateBrandPage() {
           </svg>
         </Link>
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Create Brand</h2>
+          <h2 className="text-lg lg:text-xl font-bold text-gray-800">Create Brand</h2>
           <p className="text-sm text-gray-400">Add a new product brand</p>
         </div>
       </div>

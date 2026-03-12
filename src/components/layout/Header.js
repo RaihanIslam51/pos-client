@@ -16,7 +16,7 @@ const LANGUAGES = [
 function getTitle(pathname) {
   const map = {
     "/dashboard":           "Dashboard",
-    "/dashboard/pos":       "Point of Sale",
+    "/dashboard/pos":       "Quick Sale",
     "/dashboard/products":  "Products",
     "/dashboard/categories":"Categories",
     "/dashboard/inventory": "Inventory",
@@ -31,7 +31,7 @@ function getTitle(pathname) {
   return last.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 }
 
-export default function Header({ showStock, onToggleStock }) {
+export default function Header({ showStock, onToggleStock, onMenuClick }) {
   const pathname = usePathname();
   const [showCalc,  setShowCalc]    = useState(false);
   const [showLang,  setShowLang]    = useState(false);
@@ -66,11 +66,22 @@ export default function Header({ showStock, onToggleStock }) {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuClick}
+          className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors lg:hidden mr-1 shrink-0"
+          aria-label="Open menu"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
         {/* Left — page title */}
-        <div>
-          <h1 className="text-xl font-bold text-[#1E3A8A]">{title}</h1>
-          <p className="text-xs text-gray-500 mt-0.5">{dateStr}</p>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-lg lg:text-xl font-bold text-[#1E3A8A] truncate">{title}</h1>
+          <p className="text-xs text-gray-500 mt-0.5 hidden sm:block">{dateStr}</p>
         </div>
 
         {/* Right — actions */}

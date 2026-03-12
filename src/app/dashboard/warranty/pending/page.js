@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -27,7 +28,7 @@ function PendingWarrantyContent() {
       await api.updateWarranty(id, { status });
       fetchPending();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setUpdatingId(null);
     }
@@ -35,7 +36,7 @@ function PendingWarrantyContent() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start sm:items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-base font-semibold text-gray-800">Pending Warranties</h2>
           <p className="text-xs text-gray-500 mt-0.5">Warranties awaiting activation</p>
@@ -52,8 +53,43 @@ function PendingWarrantyContent() {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        {/* Mobile cards */}
+        <div className="block md:hidden divide-y divide-gray-100">
+          {loading ? (
+            <div className="flex justify-center py-10"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]"></div></div>
+          ) : warranties.length === 0 ? (
+            <div className="text-center py-12 text-gray-400 text-sm"><p className="text-3xl mb-2">✅</p>No pending warranties</div>
+          ) : warranties.map((w) => (
+            <div key={w._id} className="p-4">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div>
+                  <p className="text-xs font-mono font-bold text-gray-800">{w.warrantyNumber}</p>
+                  <p className="text-sm text-gray-700 mt-0.5">{w.customerName || "—"}</p>
+                  {w.customerPhone && <p className="text-xs text-gray-400">{w.customerPhone}</p>}
+                </div>
+                <p className="text-xs text-gray-400 shrink-0">{new Date(w.expiryDate).toLocaleDateString()}</p>
+              </div>
+              <div className="text-xs text-gray-600 mb-3 space-y-0.5">
+                <p><span className="text-gray-400">Item: </span>{w.productName}</p>
+                <p><span className="text-gray-400">Invoice: </span>{w.saleInvoice || "—"}</p>
+                <p><span className="text-gray-400">Period: </span>{w.warrantyPeriod}m</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => handleAction(w._id, "active")} disabled={updatingId === w._id}
+                  className="flex-1 bg-green-600 text-white text-sm py-2 rounded-lg hover:bg-green-700 disabled:opacity-60 font-semibold transition-colors">
+                  Activate
+                </button>
+                <button onClick={() => handleAction(w._id, "claimed")} disabled={updatingId === w._id}
+                  className="flex-1 bg-blue-500 text-white text-sm py-2 rounded-lg hover:bg-blue-600 disabled:opacity-60 font-semibold transition-colors">
+                  Claimed
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[700px]">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">#</th>

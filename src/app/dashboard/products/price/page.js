@@ -28,7 +28,7 @@ export default function PriceAllPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Price List</h2>
+          <h2 className="text-lg lg:text-xl font-bold text-gray-800">Price List</h2>
           <p className="text-sm text-gray-400">{filtered.length} products</p>
         </div>
         <button
@@ -59,7 +59,7 @@ export default function PriceAllPage() {
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[700px]">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">#</th>

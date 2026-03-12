@@ -297,13 +297,13 @@ const userManagementSubItems = [
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: <IconDashboard /> },
-  { label: "POS", href: "/dashboard/pos", icon: <IconPOS /> },
+  { label: "Quick Sale", href: "/dashboard/pos", icon: <IconPOS /> },
   // { label: "Inventory", href: "/dashboard/inventory", icon: <IconInventory /> },
   { label: "Reports", href: "/dashboard/reports", icon: <IconReports /> },
   { label: "Settings", href: "/dashboard/settings", icon: <IconSettings /> },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen = false, onClose }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [productsOpen, setProductsOpen] = useState(() => false);
@@ -364,6 +364,8 @@ export default function Sidebar() {
     if (isSmsEmailActive) setSmsEmailOpen(true);
     if (isTaskActive) setTaskOpen(true);
     if (isUserMgmtActive) setUserMgmtOpen(true);
+    // Close sidebar on mobile after navigation
+    onClose?.();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
@@ -376,7 +378,11 @@ export default function Sidebar() {
     <aside
       className={`${
         collapsed ? "w-16" : "w-64"
-      } bg-[#1E3A8A] text-white flex flex-col h-screen sticky top-0 transition-all duration-300 ease-in-out z-40 shadow-xl`}
+      } bg-[#1E3A8A] text-white flex flex-col h-screen
+        fixed top-0 left-0 z-40 shadow-xl
+        transition-transform duration-300 ease-in-out
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+        lg:translate-x-0 lg:sticky lg:inset-auto`}
     >
       {/* Logo */}
       <div className="flex items-center justify-between p-4 border-b border-blue-700 shrink-0">
@@ -390,19 +396,32 @@ export default function Sidebar() {
             <span className="text-lg font-bold tracking-wide">POS Pro</span>
           </div>
         )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-lg hover:bg-blue-700 transition-colors"
-          aria-label="Toggle sidebar"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {collapsed ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            )}
-          </svg>
-        </button>
+        <div className="flex items-center gap-1">
+          {/* Mobile close button */}
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-blue-700 transition-colors lg:hidden"
+            aria-label="Close menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          {/* Desktop collapse toggle */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-1.5 rounded-lg hover:bg-blue-700 transition-colors hidden lg:block"
+            aria-label="Toggle sidebar"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {collapsed ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Navigation */}

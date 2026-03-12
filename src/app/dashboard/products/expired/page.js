@@ -41,7 +41,7 @@ export default function ExpiredProductsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-800">Expired Products</h2>
+        <h2 className="text-lg lg:text-xl font-bold text-gray-800">Expired Products</h2>
         <p className="text-sm text-gray-400 mt-0.5">Products that are expired or expiring within 30 days</p>
       </div>
 
@@ -67,7 +67,7 @@ export default function ExpiredProductsPage() {
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">#</th>

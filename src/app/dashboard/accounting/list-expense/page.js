@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useCallback, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -27,13 +28,14 @@ function ListExpenseContent() {
   }, [fetchExpenses]);
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this expense?")) return;
+    const result = await showConfirm("Delete this expense?");
+    if (!result.isConfirmed) return;
     setDeletingId(id);
     try {
       await api.deleteExpense(id);
       fetchExpenses();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setDeletingId(null);
     }

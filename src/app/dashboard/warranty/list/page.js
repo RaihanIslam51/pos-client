@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -237,13 +238,14 @@ function WarrantyListContent() {
   useEffect(() => { fetchWarranties(); }, [fetchWarranties]);
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this warranty record?")) return;
+    const result = await showConfirm("Delete this warranty record?");
+    if (!result.isConfirmed) return;
     setDeletingId(id);
     try {
       await api.deleteWarranty(id);
       fetchWarranties();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setDeletingId(null);
     }
@@ -301,13 +303,13 @@ function WarrantyListContent() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Warranty#, customer, item…"
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] w-56"
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] w-full sm:w-56"
             />
           </div>
         </div>
         <Link
           href="/dashboard/warranty/create"
-          className="bg-[#1E3A8A] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center gap-2 shrink-0"
+          className="bg-[#1E3A8A] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -318,8 +320,60 @@ function WarrantyListContent() {
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        {/* Mobile cards */}
+        <div className="block md:hidden divide-y divide-gray-100">
+          {loading ? (
+            <div className="flex justify-center py-10"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]" /></div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-12 text-gray-400 text-sm"><p className="text-3xl mb-2">🛡️</p>No warranties found</div>
+          ) : filtered.map((w) => {
+            const daysLeft = w.expiryDate ? Math.ceil((new Date(w.expiryDate) - new Date()) / 86400000) : null;
+            return (
+              <div key={w._id} className="p-4">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div>
+                    <p className="text-xs font-mono font-bold text-[#1E3A8A]">{w.warrantyNumber || "—"}</p>
+                    <p className="text-sm font-medium text-gray-800 mt-0.5">{w.customerName || "—"}</p>
+                    {w.customerPhone && <p className="text-xs text-gray-400">{w.customerPhone}</p>}
+                  </div>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full capitalize shrink-0 ${STATUS_COLORS[w.status] || "bg-gray-100 text-gray-600"}`}>{w.status}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600 mb-3">
+                  <div><span className="text-gray-400">Item: </span>{w.productName || "—"}</div>
+                  <div><span className="text-gray-400">Serial: </span>{w.serialNumber || "—"}</div>
+                  <div><span className="text-gray-400">Invoice: </span>{w.saleInvoice || "—"}</div>
+                  <div><span className="text-gray-400">Wty Days: </span>{w.warrantyPeriod ?? "—"}</div>
+                  <div><span className="text-gray-400">Purchased: </span>{w.purchaseDate ? new Date(w.purchaseDate).toLocaleDateString() : "—"}</div>
+                  <div>
+                    <span className="text-gray-400">Expiry: </span>{w.expiryDate ? new Date(w.expiryDate).toLocaleDateString() : "—"}
+                    {daysLeft !== null && w.status === "active" && (
+                      <span className={`ml-1 ${daysLeft <= 30 ? "text-red-500 font-semibold" : "text-gray-400"}`}>
+                        ({daysLeft > 0 ? `${daysLeft}d left` : "today"})
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-end gap-1">
+                  <button title="Edit" onClick={() => setEditTarget(w)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H7v-3.414a2 2 0 01.586-1.414z" /></svg>
+                  </button>
+                  <button title="Print" onClick={() => printWarranty(w)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" /></svg>
+                  </button>
+                  <button title="Download PDF" onClick={() => downloadPDF(w)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3M3 7l2-4h14l2 4" /></svg>
+                  </button>
+                  <button title="Delete" onClick={() => handleDelete(w._id)} disabled={deletingId === w._id} className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 disabled:opacity-40 transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4h6v3M3 7h18" /></svg>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-225">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 {["#","Warranty #","Customer","Mobile","Invoice ID","Item","Sl No",

@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -57,8 +58,8 @@ function InstalmentContent() {
   const handleAddInstalment = async (sale) => {
     const form = formMap[sale._id] || {};
     const amount = parseFloat(form.amount);
-    if (!amount || amount <= 0) return alert("Enter a valid amount");
-    if (amount > sale.dueAmount) return alert(`Amount exceeds due (৳${sale.dueAmount.toFixed(2)})`);
+    if (!amount || amount <= 0) return showWarning("Enter a valid amount");
+    if (amount > sale.dueAmount) return showWarning(`Amount exceeds due (৳${sale.dueAmount.toFixed(2)})`);
     setProcessingId(sale._id);
     try {
       await api.updateSale(sale._id, { instalment: { amount, note: form.note || "" } });
@@ -67,20 +68,21 @@ function InstalmentContent() {
       setTimeout(() => setSuccessId(null), 2000);
       fetchInstalment();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setProcessingId(null);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this invoice?")) return;
+    const result = await showConfirm("Delete this invoice?");
+    if (!result.isConfirmed) return;
     setDeletingId(id);
     try {
       await api.deleteSale(id);
       fetchInstalment();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setDeletingId(null);
     }
@@ -107,7 +109,7 @@ function InstalmentContent() {
 
       {/* ── Summary Cards ── */}
       {!loading && sales.length > 0 && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
             { label: "Total Invoice Value", value: totalValue, color: "text-[#1E3A8A]" },
             { label: "Total Collected",     value: totalPaid,  color: "text-green-600" },

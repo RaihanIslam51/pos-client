@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -168,7 +169,7 @@ function CustomerListContent() {
     try {
       await api.deleteCustomer(id);
       fetchCustomers();
-    } catch (err) { alert(err.message); }
+    } catch (err) { showError(err.message); }
     finally { setDeletingId(null); }
   };
 
@@ -177,7 +178,7 @@ function CustomerListContent() {
     try {
       await api.toggleImportantCustomer(id);
       fetchCustomers();
-    } catch (err) { alert(err.message); }
+    } catch (err) { showError(err.message); }
     finally { setTogglingId(null); }
   };
 
@@ -212,7 +213,7 @@ function CustomerListContent() {
           className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]"
         />
         <Link href="/dashboard/customers/create"
-          className="bg-[#1E3A8A] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center gap-2 shrink-0">
+          className="bg-[#1E3A8A] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center gap-2 w-full sm:w-auto justify-center">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -222,7 +223,85 @@ function CustomerListContent() {
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Mobile Cards */}
+        <div className="block md:hidden divide-y divide-gray-100">
+          {loading ? (
+            <div className="text-center py-10">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]" />
+            </div>
+          ) : customers.length === 0 ? (
+            <div className="text-center py-12 text-gray-400 text-sm">
+              <p className="text-3xl mb-2">👥</p>No customers found
+            </div>
+          ) : customers.map((c, idx) => (
+            <div key={c._id} className="p-4 hover:bg-gray-50">
+              <div className="flex items-start gap-3">
+                {c.customerImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={c.customerImage} alt="customer" className="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm font-bold shrink-0">
+                    {(c.name || "?")[0].toUpperCase()}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {c.isImportant && <span className="text-yellow-400">★</span>}
+                      <span className="font-semibold text-gray-800 text-sm">{c.name}</span>
+                      {c.nameLine2 && <span className="text-xs text-gray-400">{c.nameLine2}</span>}
+                    </div>
+                    <span className="text-xs text-gray-400 shrink-0">#{idx + 1}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-0.5">{c.phone}{c.email ? ` • ${c.email}` : ""}</p>
+                  {(c.address || c.state) && (
+                    <p className="text-xs text-gray-400 mt-0.5">{[c.address, c.state].filter(Boolean).join(", ")}</p>
+                  )}
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+                    <div>
+                      <p className="text-[10px] text-gray-400">Total Purchase</p>
+                      <p className="text-sm font-semibold text-gray-800">৳{(c.totalPurchase || 0).toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400">Due</p>
+                      <p className="text-sm font-semibold text-red-600">৳{(c.dueAmount || 0).toFixed(2)}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {c.status === "inactive"
+                      ? <Badge label="Inactive" color="bg-gray-100 text-gray-500" />
+                      : <Badge label="Active" color="bg-green-100 text-green-700" />}
+                    {c.isWholesaler && <Badge label="Wholesaler" color="bg-blue-100 text-blue-700" />}
+                    {c.dueAllowed && <Badge label="Due Allowed" color="bg-green-100 text-green-700" />}
+                  </div>
+                  <div className="flex items-center justify-between mt-3">
+                    <button onClick={() => handleToggleImportant(c._id)} disabled={togglingId === c._id}
+                      title={c.isImportant ? "Remove VIP" : "Mark as VIP"}
+                      className={`text-lg transition-colors ${c.isImportant ? "text-yellow-400 hover:text-gray-300" : "text-gray-200 hover:text-yellow-400"}`}>
+                      ★
+                    </button>
+                    <div className="flex items-center gap-1">
+                      <IconBtn title="Edit" color="text-blue-600" onClick={() => setEditTarget(c)}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H7v-3.414a2 2 0 01.586-1.414z" />
+                        </svg>
+                      </IconBtn>
+                      <IconBtn title="Delete" color="text-red-500" disabled={deletingId === c._id} onClick={() => handleDelete(c._id)}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4h6v3M3 7h18" />
+                        </svg>
+                      </IconBtn>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">

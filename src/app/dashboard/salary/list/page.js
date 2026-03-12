@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 
@@ -33,17 +34,18 @@ export default function ListSalaryPage() {
       await api.markSalaryPaid(id);
       fetchSalaries();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this salary record?")) return;
+    const result = await showConfirm("Delete this salary record?");
+    if (!result.isConfirmed) return;
     try {
       await api.deleteSalary(id);
       fetchSalaries();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     }
   };
 

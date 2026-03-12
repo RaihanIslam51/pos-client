@@ -99,6 +99,7 @@ export const api = {
   getDashboardStats: () => fetchAPI("/reports/dashboard"),
   getSalesReport: (params = "") => fetchAPI(`/reports/sales${params}`),
   getTopProducts: () => fetchAPI("/reports/top-products"),
+  getMonthlySalesChart: (params = "") => fetchAPI(`/reports/monthly-chart${params}`),
 
   // Expense Categories
   getExpenseCategories: (params = "") => fetchAPI(`/expense-categories${params}`),

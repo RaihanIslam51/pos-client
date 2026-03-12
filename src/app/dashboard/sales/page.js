@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { api } from "@/lib/api";
@@ -42,12 +43,13 @@ function SalesContent() {
   useEffect(() => { fetchSales(); }, [fetchSales]);
 
   const handleCancel = async (id) => {
-    if (!confirm("Cancel this sale?")) return;
+    const result = await showConfirm("Cancel this sale?");
+    if (!result.isConfirmed) return;
     try {
       await api.cancelSale(id);
       fetchSales();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     }
   };
 

@@ -45,7 +45,7 @@ function QuotationViewContent() {
       <style>{`@media print { .no-print { display: none !important; } body { background: white; } }`}</style>
 
       {/* ── Action bar ── */}
-      <div className="no-print flex items-center justify-between mb-5">
+      <div className="no-print flex items-center justify-between gap-3 flex-wrap mb-5">
         <button onClick={() => router.back()}
           className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-[#1E3A8A] transition-colors">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@ function QuotationViewContent() {
       </div>
 
       {/* ── Quotation card ── */}
-      <div className="bg-white border border-gray-200 rounded-xl p-8 max-w-2xl mx-auto shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-8 max-w-2xl mx-auto shadow-sm">
 
         {/* Header */}
         <div className="flex justify-between items-start mb-6 pb-4 border-b border-gray-200">
@@ -89,7 +89,7 @@ function QuotationViewContent() {
         </div>
 
         {/* Customer + Valid Until */}
-        <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 text-sm">
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Customer</p>
             <p className="font-medium text-gray-800">{quotation.customerName}</p>
@@ -104,7 +104,8 @@ function QuotationViewContent() {
         </div>
 
         {/* Items table */}
-        <table className="w-full text-sm mb-6">
+        <div className="overflow-x-auto mb-6">
+        <table className="w-full text-sm min-w-95">
           <thead>
             <tr className="border-b-2 border-[#1E3A8A]">
               <th className="text-left py-2 text-xs font-semibold text-[#1E3A8A]">#</th>
@@ -128,10 +129,11 @@ function QuotationViewContent() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {/* Totals */}
         <div className="flex justify-end">
-          <div className="w-56 text-sm space-y-1.5">
+          <div className="w-full sm:w-56 text-sm space-y-1.5">
             <div className="flex justify-between text-gray-600">
               <span>Subtotal</span>
               <span>৳{(quotation.subtotal || 0).toFixed(2)}</span>

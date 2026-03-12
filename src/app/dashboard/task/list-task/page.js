@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import Link from "next/link";
@@ -29,15 +30,16 @@ export default function ListTaskPage() {
     try {
       await api.updateTaskStatus(id, { status });
       fetchTasks();
-    } catch (err) { alert(err.message); }
+    } catch (err) { showError(err.message); }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this task?")) return;
+    const result = await showConfirm("Delete this task?");
+    if (!result.isConfirmed) return;
     try {
       await api.deleteTask(id);
       fetchTasks();
-    } catch (err) { alert(err.message); }
+    } catch (err) { showError(err.message); }
   };
 
   const priorityColor = { low: "bg-gray-100 text-gray-600", medium: "bg-yellow-100 text-yellow-700", high: "bg-red-100 text-red-700" };

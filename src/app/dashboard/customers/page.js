@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { api } from "@/lib/api";
@@ -61,7 +62,7 @@ function CustomersContent() {
       setShowModal(false);
       fetchCustomers();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setSaving(false);
     }
@@ -74,7 +75,7 @@ function CustomersContent() {
       await api.deleteCustomer(id);
       fetchCustomers();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setDeletingId(null);
     }

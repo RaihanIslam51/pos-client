@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -27,7 +28,7 @@ function PendingQuotationContent() {
       await api.updateQuotation(id, { status });
       fetchPending();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setUpdatingId(null);
     }
@@ -35,7 +36,7 @@ function PendingQuotationContent() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start sm:items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-base font-semibold text-gray-800">Pending Quotations</h2>
           <p className="text-xs text-gray-500 mt-0.5">Awaiting approval or rejection</p>
@@ -52,8 +53,42 @@ function PendingQuotationContent() {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        {/* Mobile cards */}
+        <div className="block md:hidden divide-y divide-gray-100">
+          {loading ? (
+            <div className="flex justify-center py-10"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]"></div></div>
+          ) : quotations.length === 0 ? (
+            <div className="text-center py-12 text-gray-400 text-sm"><p className="text-3xl mb-2">✅</p>No pending quotations</div>
+          ) : quotations.map((q) => (
+            <div key={q._id} className="p-4">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div>
+                  <p className="text-xs font-mono font-bold text-gray-800">{q.quotationNumber}</p>
+                  <p className="text-sm text-gray-700 mt-0.5">{q.customerName}</p>
+                </div>
+                <p className="text-xs text-gray-400 shrink-0">{new Date(q.createdAt).toLocaleDateString()}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-1 text-xs text-gray-600 mb-3">
+                <div><span className="text-gray-400">Total: </span><span className="font-bold text-gray-800">৳{q.totalAmount.toFixed(2)}</span></div>
+                <div><span className="text-gray-400">Valid: </span>{q.validUntil ? new Date(q.validUntil).toLocaleDateString() : "—"}</div>
+                <div><span className="text-gray-400">Items: </span>{q.items?.length || 0}</div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => handleAction(q._id, "approved")} disabled={updatingId === q._id}
+                  className="flex-1 bg-green-600 text-white text-sm py-2 rounded-lg hover:bg-green-700 disabled:opacity-60 font-semibold transition-colors">
+                  Approve
+                </button>
+                <button onClick={() => handleAction(q._id, "rejected")} disabled={updatingId === q._id}
+                  className="flex-1 bg-red-500 text-white text-sm py-2 rounded-lg hover:bg-red-600 disabled:opacity-60 font-semibold transition-colors">
+                  Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[700px]">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">#</th>

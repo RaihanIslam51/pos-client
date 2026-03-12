@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -47,20 +48,21 @@ export default function ListCategoriesPage() {
       setEditItem(null);
       fetchCategories();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this category?")) return;
+    const result = await showConfirm("Delete this category?");
+    if (!result.isConfirmed) return;
     setDeletingId(id);
     try {
       await api.deleteCategory(id);
       fetchCategories();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setDeletingId(null);
     }
@@ -68,19 +70,20 @@ export default function ListCategoriesPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Categories</h2>
+          <h2 className="text-lg lg:text-xl font-bold text-gray-800">Categories</h2>
           <p className="text-sm text-gray-400">{categories.length} categor{categories.length !== 1 ? "ies" : "y"}</p>
         </div>
         <Link
           href="/dashboard/products/categories/create"
-          className="bg-[#1E3A8A] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center gap-2"
+          className="bg-[#1E3A8A] text-white px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center gap-2 shrink-0"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          New Category
+          <span className="hidden sm:inline">New Category</span>
+          <span className="sm:hidden">New</span>
         </Link>
       </div>
 

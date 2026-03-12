@@ -44,7 +44,7 @@ export default function CreateCategoryPage() {
           </svg>
         </Link>
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Create Category</h2>
+          <h2 className="text-lg lg:text-xl font-bold text-gray-800">Create Category</h2>
           <p className="text-sm text-gray-400">Add a new product category</p>
         </div>
       </div>

@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
@@ -17,14 +18,14 @@ function AddSalesPersonContent() {
       await api.createSalesPerson(form);
       router.push("/dashboard/salesperson/list");
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
+    <form onSubmit={handleSubmit} className="space-y-5 max-w-lg w-full">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
         <h3 className="text-sm font-semibold text-gray-700">Sales Person Details</h3>
 
@@ -72,13 +73,13 @@ function AddSalesPersonContent() {
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col-reverse sm:flex-row gap-3">
         <button type="submit" disabled={loading}
-          className="bg-[#1E3A8A] text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors disabled:opacity-60">
+          className="bg-[#1E3A8A] text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors disabled:opacity-60 w-full sm:w-auto">
           {loading ? "Saving..." : "Add Sales Person"}
         </button>
         <button type="button" onClick={() => router.back()}
-          className="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">
+          className="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors w-full sm:w-auto">
           Cancel
         </button>
       </div>

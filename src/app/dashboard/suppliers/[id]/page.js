@@ -51,7 +51,7 @@ export default function SupplierViewPage() {
       </div>
 
       {/* Action bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <button onClick={() => router.back()}
           className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-[#1E3A8A] transition-colors">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@ export default function SupplierViewPage() {
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-200 flex items-center gap-4">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 flex items-center gap-4">
           <div className="w-14 h-14 bg-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shrink-0">
             {supplier.name.charAt(0).toUpperCase()}
           </div>
@@ -90,7 +90,7 @@ export default function SupplierViewPage() {
         {/* Details grid */}
         <div className="divide-y divide-gray-100">
           {rows.map(({ label, value }) => (
-            <div key={label} className="grid grid-cols-2 px-6 py-3 text-sm">
+            <div key={label} className="grid grid-cols-2 px-4 sm:px-6 py-3 text-sm">
               <span className="text-gray-500 font-medium">{label}</span>
               <span className="text-gray-800 font-semibold">{value}</span>
             </div>

@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -39,7 +40,7 @@ export default function ListBrandsPage() {
       setEditItem(null);
       fetchBrands();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setSaving(false);
     }
@@ -52,7 +53,7 @@ export default function ListBrandsPage() {
       await api.deleteBrand(id);
       fetchBrands();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setDeletingId(null);
     }
@@ -60,23 +61,24 @@ export default function ListBrandsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Brands</h2>
+          <h2 className="text-lg lg:text-xl font-bold text-gray-800">Brands</h2>
           <p className="text-sm text-gray-400">{brands.length} brand{brands.length !== 1 ? "s" : ""}</p>
         </div>
         <Link
           href="/dashboard/products/brands/create"
-          className="bg-[#1E3A8A] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center gap-2 whitespace-nowrap"
+          className="bg-[#1E3A8A] text-white px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center gap-2 shrink-0"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          New Brand
+          <span className="hidden sm:inline">New Brand</span>
+          <span className="sm:hidden">New</span>
         </Link>
       </div>
 
-      <div className="relative max-w-xs">
+      <div className="relative w-full sm:max-w-xs">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -89,7 +91,8 @@ export default function ListBrandsPage() {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[400px]">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
               <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">#</th>
@@ -136,6 +139,7 @@ export default function ListBrandsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Edit Modal */}

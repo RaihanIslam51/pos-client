@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import Link from "next/link";
@@ -35,7 +36,7 @@ export default function ListLoanPage() {
       await api.deleteLoan(id);
       fetchLoans();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     }
   };
 

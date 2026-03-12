@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 
@@ -51,7 +52,7 @@ export default function ProductAdjustmentPage() {
       setRecentLogs(r2.data);
       setForm({ product: "", type: "addition", quantity: "", note: "" });
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setSaving(false);
     }
@@ -60,13 +61,13 @@ export default function ProductAdjustmentPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-800">Product Adjustment</h2>
+        <h2 className="text-lg lg:text-xl font-bold text-gray-800">Product Adjustment</h2>
         <p className="text-sm text-gray-400">Manually add or deduct product stock quantities</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Adjustment Form */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 lg:p-6">
           <h3 className="text-sm font-bold text-gray-700 mb-5">Stock Adjustment Form</h3>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -191,7 +192,7 @@ export default function ProductAdjustmentPage() {
           <div className="p-5 border-b border-gray-100">
             <h3 className="text-sm font-bold text-gray-700">Recent Adjustments</h3>
           </div>
-          <div className="overflow-y-auto max-h-[500px]">
+          <div className="overflow-y-auto overflow-x-auto max-h-[500px]">
             {logsLoading ? (
               <div className="text-center py-10"><div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#1E3A8A]" /></div>
             ) : recentLogs.length === 0 ? (
@@ -200,7 +201,7 @@ export default function ProductAdjustmentPage() {
                 <p>No adjustments yet</p>
               </div>
             ) : (
-              <table className="w-full">
+              <table className="w-full min-w-[420px]">
                 <thead className="bg-gray-50 border-b border-gray-200 sticky top-0">
                   <tr>
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase px-4 py-2.5">Product</th>

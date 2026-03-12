@@ -35,9 +35,9 @@ export default function BarcodeGeneratePage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Barcode Generator</h2>
+          <h2 className="text-lg lg:text-xl font-bold text-gray-800">Barcode Generator</h2>
           <p className="text-sm text-gray-400">Select products to generate barcodes for printing</p>
         </div>
         {selected.length > 0 && (

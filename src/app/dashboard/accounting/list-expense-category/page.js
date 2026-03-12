@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning, showConfirm } from "@/lib/swal";
 import { useState, useCallback, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -38,16 +39,17 @@ function ListExpenseCategoryContent() {
       await api.updateExpenseCategory(id, editForm);
       setEditingId(null);
       fetchCategories();
-    } catch (err) { alert(err.message); } finally { setSavingId(null); }
+    } catch (err) { showError(err.message); } finally { setSavingId(null); }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this category?")) return;
+    const result = await showConfirm("Delete this category?");
+    if (!result.isConfirmed) return;
     setDeletingId(id);
     try {
       await api.deleteExpenseCategory(id);
       fetchCategories();
-    } catch (err) { alert(err.message); } finally { setDeletingId(null); }
+    } catch (err) { showError(err.message); } finally { setDeletingId(null); }
   };
 
   return (

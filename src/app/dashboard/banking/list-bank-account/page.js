@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useCallback, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -38,7 +39,7 @@ function ListBankAccountContent() {
       await api.updateBankAccount(id, editForm);
       setEditingId(null);
       fetchAccounts();
-    } catch (err) { alert(err.message); } finally { setSavingId(null); }
+    } catch (err) { showError(err.message); } finally { setSavingId(null); }
   };
 
   const handleDelete = async (id) => {
@@ -47,7 +48,7 @@ function ListBankAccountContent() {
     try {
       await api.deleteBankAccount(id);
       fetchAccounts();
-    } catch (err) { alert(err.message); } finally { setDeletingId(null); }
+    } catch (err) { showError(err.message); } finally { setDeletingId(null); }
   };
 
   const totalBalance = accounts.reduce((s, a) => s + (a.balance || 0), 0);

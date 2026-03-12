@@ -418,13 +418,13 @@ export default function CreateSalesPage() {
       <div className="bg-white mt-2">
 
         {/* Row 1: Item Total | Overall Discount | Delivery Cost */}
-        <div className="grid grid-cols-3 border-b border-gray-200">
-          <div className="px-4 py-3 border-r border-gray-200">
+        <div className="grid grid-cols-1 sm:grid-cols-3 border-b border-gray-200">
+          <div className="px-4 py-3 sm:border-r border-gray-200 border-b sm:border-b-0">
             <label className="block text-xs font-semibold text-gray-600 mb-1">Item Total</label>
             <input type="text" readOnly value={itemTotal.toFixed(2)}
               className="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-100 text-center font-semibold outline-none cursor-default" />
           </div>
-          <div className="px-4 py-3 border-r border-gray-200">
+          <div className="px-4 py-3 sm:border-r border-gray-200 border-b sm:border-b-0">
             <label className="block text-xs font-semibold text-gray-600 mb-1">Overall Discount</label>
             <input type="number" min="0" step="0.01" value={pay.overallDiscount}
               onChange={(e) => setPay({ ...pay, overallDiscount: e.target.value })}
@@ -441,8 +441,8 @@ export default function CreateSalesPage() {
         </div>
 
         {/* Row 2: Pay via | Paid | Due */}
-        <div className="grid grid-cols-3 border-b border-gray-200">
-          <div className="px-4 py-3 border-r border-gray-200">
+        <div className="grid grid-cols-1 sm:grid-cols-3 border-b border-gray-200">
+          <div className="px-4 py-3 sm:border-r border-gray-200 border-b sm:border-b-0">
             <label className="block text-xs font-semibold text-gray-600 mb-1">Pay via</label>
             <select value={pay.payVia} onChange={(e) => setPay({ ...pay, payVia: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500 bg-white">
@@ -452,7 +452,7 @@ export default function CreateSalesPage() {
               <option value="credit">Credit</option>
             </select>
           </div>
-          <div className="px-4 py-3 border-r border-gray-200">
+          <div className="px-4 py-3 sm:border-r border-gray-200 border-b sm:border-b-0">
             <label className="block text-xs font-semibold text-gray-600 mb-1">Paid</label>
             <input type="number" min="0" step="0.01" value={pay.paid}
               onChange={(e) => setPay({ ...pay, paid: e.target.value })}
@@ -468,8 +468,8 @@ export default function CreateSalesPage() {
         </div>
 
         {/* Row 3: Notes (span 2) | Change */}
-        <div className="grid grid-cols-3">
-          <div className="px-4 py-3 col-span-2 border-r border-gray-200">
+        <div className="grid grid-cols-1 sm:grid-cols-3">
+          <div className="px-4 py-3 sm:col-span-2 sm:border-r border-gray-200 border-b sm:border-b-0">
             <label className="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
             <textarea value={pay.notes} onChange={(e) => setPay({ ...pay, notes: e.target.value })}
               rows={2} placeholder="Notes"
@@ -485,7 +485,7 @@ export default function CreateSalesPage() {
       </div>
 
       {/* ── Sticky Bottom Bar ── */}
-      <div className="fixed bottom-0 right-0 flex h-14 z-50" style={{ left: "240px" }}>
+      <div className="fixed bottom-0 left-0 right-0 lg:left-64 flex h-14 z-50">
         <div className="flex-1 flex items-center justify-center text-white text-2xl font-bold" style={{background:"#1E3A8A"}}>
           {grandTotal.toFixed(2)}
         </div>

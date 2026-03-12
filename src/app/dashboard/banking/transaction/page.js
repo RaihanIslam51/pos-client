@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
@@ -41,7 +42,7 @@ function BankingTransactionContent() {
       await api.deleteBankTransaction(id);
       fetchTransactions();
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setDeletingId(null);
     }

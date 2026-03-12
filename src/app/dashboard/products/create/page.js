@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -185,7 +186,7 @@ function CreateProductContent() {
       }
       router.push("/dashboard/products/list");
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setSaving(false);
     }
@@ -200,30 +201,30 @@ function CreateProductContent() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 pb-10">
+    <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6 pb-10">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">
+          <h2 className="text-lg lg:text-xl font-bold text-gray-800">
             {editId ? "Edit Product" : "Create Product"}
           </h2>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="text-xs lg:text-sm text-gray-400 mt-0.5">
             {editId ? "Update product information" : "Add a new product to your inventory"}
           </p>
         </div>
         <Link
           href="/dashboard/products/list"
-          className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1E3A8A] transition-colors"
+          className="shrink-0 flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1E3A8A] transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Back to List
+          <span className="hidden sm:inline">Back to List</span>
         </Link>
       </div>
 
       {/* ── Section 1: Product Information ───────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 lg:p-6">
         <SectionHeading title="Product Information" subtitle="Basic details about the product" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -432,7 +433,7 @@ function CreateProductContent() {
       </div>
 
       {/* ── Section 2: Tax & Pricing ─────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 lg:p-6">
         <SectionHeading title="Tax & Pricing" subtitle="Configure pricing and tax settings" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -555,7 +556,7 @@ function CreateProductContent() {
       </div>
 
       {/* ── Section 3: Settings & Media ──────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 lg:p-6">
         <SectionHeading title="Settings & Media" subtitle="Stock management, visibility and product image" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -617,17 +618,17 @@ function CreateProductContent() {
       </div>
 
       {/* ── Action Buttons ────────────────────────────────────────────────── */}
-      <div className="flex gap-4 justify-end">
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
         <Link
           href="/dashboard/products/list"
-          className="px-6 py-2.5 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+          className="w-full sm:w-auto text-center px-6 py-2.5 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
         >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={saving}
-          className="px-8 py-2.5 bg-[#1E3A8A] text-white rounded-lg text-sm font-semibold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="w-full sm:w-auto px-8 py-2.5 bg-[#1E3A8A] text-white rounded-lg text-sm font-semibold hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
         >
           {saving ? (
             <>

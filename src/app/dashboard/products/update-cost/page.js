@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 
@@ -33,7 +34,7 @@ export default function UpdateCostPage() {
       setSuccessIds((prev) => [...prev, product._id]);
       setTimeout(() => setSuccessIds((prev) => prev.filter((id) => id !== product._id)), 2000);
     } catch (err) {
-      alert(err.message);
+      showError(err.message);
     } finally {
       setSaving((prev) => ({ ...prev, [product._id]: false }));
     }
@@ -42,11 +43,11 @@ export default function UpdateCostPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-xl font-bold text-gray-800">Update Cost & Price</h2>
+        <h2 className="text-lg lg:text-xl font-bold text-gray-800">Update Cost & Price</h2>
         <p className="text-sm text-gray-400">Quickly update purchase cost and selling price for all products</p>
       </div>
 
-      <div className="relative max-w-xs">
+      <div className="relative w-full max-w-xs">
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products..."
           className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]" />
         <svg className="absolute left-3 top-3 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +57,7 @@ export default function UpdateCostPage() {
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase px-5 py-3">#</th>

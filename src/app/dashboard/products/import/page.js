@@ -1,4 +1,5 @@
 "use client";
+import { showError, showSuccess, showWarning } from "@/lib/swal";
 import { useRef, useState } from "react";
 import Link from "next/link";
 
@@ -11,14 +12,14 @@ export default function ImportProductPage() {
     if (f && (f.name.endsWith(".csv") || f.name.endsWith(".xlsx"))) {
       setFile(f);
     } else {
-      alert("Please upload a .csv or .xlsx file");
+      showWarning("Please upload a .csv or .xlsx file");
     }
   };
 
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-gray-800">Import Products</h2>
+          <h2 className="text-lg lg:text-xl font-bold text-gray-800">Import Products</h2>
         <p className="text-sm text-gray-400 mt-0.5">Bulk import products from a CSV or Excel file</p>
       </div>
 
@@ -67,11 +68,11 @@ export default function ImportProductPage() {
         </div>
 
         {file && (
-          <div className="mt-4 flex gap-3 justify-end">
-            <button onClick={() => setFile(null)} className="px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+          <div className="mt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+            <button onClick={() => setFile(null)} className="w-full sm:w-auto px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 text-center">
               Clear
             </button>
-            <button className="px-6 py-2 bg-[#1E3A8A] text-white rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors">
+            <button className="w-full sm:w-auto px-6 py-2 bg-[#1E3A8A] text-white rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors text-center">
               Import Now
             </button>
           </div>

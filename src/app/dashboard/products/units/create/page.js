@@ -52,7 +52,7 @@ export default function CreateUnitPage() {
           </svg>
         </Link>
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Create Unit</h2>
+          <h2 className="text-lg lg:text-xl font-bold text-gray-800">Create Unit</h2>
           <p className="text-sm text-gray-400">Add a measurement unit for products</p>
         </div>
       </div>

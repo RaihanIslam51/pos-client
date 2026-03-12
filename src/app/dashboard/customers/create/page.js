@@ -134,7 +134,7 @@ function CreateCustomerContent() {
           <p className="text-xs text-gray-400 mt-0.5">Customer Information</p>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {error && (
             <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">{error}</div>
           )}
@@ -292,17 +292,17 @@ function CreateCustomerContent() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 pt-2 border-t border-gray-100">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2 border-t border-gray-100">
               <Link
                 href="/dashboard/customers/list"
-                className="px-6 border border-gray-200 rounded-lg py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                className="px-6 border border-gray-200 rounded-lg py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors w-full sm:w-auto text-center"
               >
                 Cancel
               </Link>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 bg-[#1E3A8A] text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-blue-800 disabled:opacity-50 transition-colors"
+                className="px-8 bg-[#1E3A8A] text-white rounded-lg py-2.5 text-sm font-semibold hover:bg-blue-800 disabled:opacity-50 transition-colors w-full sm:w-auto"
               >
                 {loading ? "Saving..." : "Save"}
               </button>
