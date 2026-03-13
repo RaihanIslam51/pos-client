@@ -152,6 +152,7 @@ export const api = {
   createProduct: (data) => fetchAPI("/products", { method: "POST", body: JSON.stringify(data) }),
   updateProduct: (id, data) => fetchAPI(`/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteProduct: (id) => fetchAPI(`/products/${id}`, { method: "DELETE" }),
+  bulkDeleteProductsByDate: (days) => fetchAPI("/products/bulk-delete/by-date", { method: "DELETE", body: JSON.stringify({ days }) }),
 
   // Customers
   getCustomers: (params = "") => fetchAPI(`/customers${params}`),
@@ -190,6 +191,7 @@ export const api = {
   updateSale: (id, data) => fetchAPI(`/sales/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteSale: (id) => fetchAPI(`/sales/${id}`, { method: "DELETE" }),
   bulkDeleteSales: (ids) => fetchAPI("/sales/bulk", { method: "DELETE", body: JSON.stringify({ ids }) }),
+  bulkDeleteSalesByDate: (days) => fetchAPI("/sales/bulk-delete/by-date", { method: "DELETE", body: JSON.stringify({ days }) }),
   cancelSale: (id) => fetchAPI(`/sales/${id}/cancel`, { method: "PATCH" }),
 
   // Quotations

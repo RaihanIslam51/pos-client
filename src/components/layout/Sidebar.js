@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useSettings } from "@/lib/SettingsContext";
+import { useLanguage } from "@/lib/LanguageContext";
 
 const IconDashboard = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,6 +309,7 @@ const navItems = [
 export default function Sidebar({ mobileOpen = false, onClose }) {
   const pathname = usePathname();
   const { settings } = useSettings();
+  const { t } = useLanguage();
   const [collapsed, setCollapsed] = useState(false);
   const [productsOpen, setProductsOpen] = useState(() => false);
   const [purchaseOpen, setPurchaseOpen] = useState(() => false);
@@ -404,7 +406,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
                 </svg>
               </div>
             )}
-            <span className="text-lg font-bold tracking-wide truncate max-w-[140px]">
+            <span className="text-lg font-bold tracking-wide truncate max-w-35">
               {settings.shopName || "POS Pro"}
             </span>
           </div>
@@ -445,7 +447,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
           <Link
             key={item.href}
             href={item.href}
-            title={collapsed ? item.label : ""}
+            title={collapsed ? t(item.label) : ""}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isActive(item.href)
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -453,7 +455,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             }`}
           >
             <span className="shrink-0">{item.icon}</span>
-            {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
+            {!collapsed && <span className="text-sm font-medium truncate">{t(item.label)}</span>}
           </Link>
         ))}
 
@@ -462,7 +464,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setSalesOpen(!salesOpen)}
-            title={collapsed ? "Sales" : ""}
+            title={collapsed ? t("Sales") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isSalesActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -472,7 +474,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <span className="shrink-0"><IconSales /></span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Sales</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Sales")}</span>
                 <IconChevron open={salesOpen} />
               </>
             )}
@@ -483,7 +485,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
               {salesSubItems.map((section) => (
                 <div key={section.group}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">
-                    {section.group}
+                    {t(section.group)}
                   </p>
                   {section.items.map((sub) => (
                     <Link
@@ -496,7 +498,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
                       }`}
                     >
                       <span className="w-1 h-1 rounded-full bg-current shrink-0" />
-                      {sub.label}
+                      {t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -509,7 +511,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setSuppliersOpen(!suppliersOpen)}
-            title={collapsed ? "Suppliers" : ""}
+            title={collapsed ? t("Suppliers") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isSuppliersActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -519,7 +521,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <span className="shrink-0"><IconSuppliers /></span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Suppliers</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Suppliers")}</span>
                 <IconChevron open={suppliersOpen} />
               </>
             )}
@@ -531,7 +533,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
               {supplierSubItems.map((section) => (
                 <div key={section.group}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">
-                    {section.group}
+                    {t(section.group)}
                   </p>
                   {section.items.map((sub) => (
                     <Link
@@ -544,7 +546,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
                       }`}
                     >
                       <span className="w-1 h-1 rounded-full bg-current shrink-0" />
-                      {sub.label}
+                      {t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -557,7 +559,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setProductsOpen(!productsOpen)}
-            title={collapsed ? "Products" : ""}
+            title={collapsed ? t("Products") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isProductsActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -567,7 +569,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <span className="shrink-0"><IconProduct /></span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Products</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Products")}</span>
                 <IconChevron open={productsOpen} />
               </>
             )}
@@ -579,7 +581,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
               {productSubItems.map((section) => (
                 <div key={section.group}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">
-                    {section.group}
+                    {t(section.group)}
                   </p>
                   {section.items.map((sub) => (
                     <Link
@@ -592,7 +594,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
                       }`}
                     >
                       <span className="w-1 h-1 rounded-full bg-current shrink-0" />
-                      {sub.label}
+                      {t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -607,7 +609,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setPurchaseOpen(!purchaseOpen)}
-            title={collapsed ? "Purchase" : ""}
+            title={collapsed ? t("Purchase") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isPurchaseActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -617,7 +619,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <span className="shrink-0"><IconPurchase /></span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Purchase</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Purchase")}</span>
                 <IconChevron open={purchaseOpen} />
               </>
             )}
@@ -628,7 +630,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
               {purchaseSubItems.map((section) => (
                 <div key={section.group}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">
-                    {section.group}
+                    {t(section.group)}
                   </p>
                   {section.items.map((sub) => (
                     <Link
@@ -641,7 +643,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
                       }`}
                     >
                       <span className="w-1 h-1 rounded-full bg-current shrink-0" />
-                      {sub.label}
+                      {t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -654,7 +656,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setWarrantyOpen(!warrantyOpen)}
-            title={collapsed ? "Warranty" : ""}
+            title={collapsed ? t("Warranty") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isWarrantyActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -668,7 +670,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Warranty</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Warranty")}</span>
                 <IconChevron open={warrantyOpen} />
               </>
             )}
@@ -679,7 +681,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
               {warrantySubItems.map((section) => (
                 <div key={section.group}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">
-                    {section.group}
+                    {t(section.group)}
                   </p>
                   {section.items.map((sub) => (
                     <Link
@@ -692,7 +694,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
                       }`}
                     >
                       <span className="w-1 h-1 rounded-full bg-current shrink-0" />
-                      {sub.label}
+                      {t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -705,7 +707,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setQuotationOpen(!quotationOpen)}
-            title={collapsed ? "Quotation" : ""}
+            title={collapsed ? t("Quotation") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isQuotationActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -719,7 +721,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Quotation</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Quotation")}</span>
                 <IconChevron open={quotationOpen} />
               </>
             )}
@@ -730,7 +732,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
               {quotationSubItems.map((section) => (
                 <div key={section.group}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">
-                    {section.group}
+                    {t(section.group)}
                   </p>
                   {section.items.map((sub) => (
                     <Link
@@ -743,7 +745,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
                       }`}
                     >
                       <span className="w-1 h-1 rounded-full bg-current shrink-0" />
-                      {sub.label}
+                      {t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -757,7 +759,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
           <Link
             key={item.href}
             href={item.href}
-            title={collapsed ? item.label : ""}
+            title={collapsed ? t(item.label) : ""}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isActive(item.href)
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -765,7 +767,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             }`}
           >
             <span className="shrink-0">{item.icon}</span>
-            {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
+            {!collapsed && <span className="text-sm font-medium truncate">{t(item.label)}</span>}
           </Link>
         ))} */}
 
@@ -775,7 +777,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setCustomersOpen(!customersOpen)}
-            title={collapsed ? "Customers" : ""}
+            title={collapsed ? t("Customers") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isCustomersActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -785,7 +787,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <span className="shrink-0"><IconCustomers /></span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Customers</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Customers")}</span>
                 <IconChevron open={customersOpen} />
               </>
             )}
@@ -796,7 +798,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
               {customerSubItems.map((section) => (
                 <div key={section.group}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">
-                    {section.group}
+                    {t(section.group)}
                   </p>
                   {section.items.map((sub) => (
                     <Link
@@ -809,7 +811,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
                       }`}
                     >
                       <span className="w-1 h-1 rounded-full bg-current shrink-0" />
-                      {sub.label}
+                      {t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -824,7 +826,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setSalesPersonOpen(!salesPersonOpen)}
-            title={collapsed ? "Sales Person" : ""}
+            title={collapsed ? t("Sales Person") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isSalesPersonActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -838,7 +840,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Sales Person</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Sales Person")}</span>
                 <IconChevron open={salesPersonOpen} />
               </>
             )}
@@ -849,7 +851,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
               {salesPersonSubItems.map((section) => (
                 <div key={section.group}>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">
-                    {section.group}
+                    {t(section.group)}
                   </p>
                   {section.items.map((sub) => (
                     <Link
@@ -862,7 +864,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
                       }`}
                     >
                       <span className="w-1 h-1 rounded-full bg-current shrink-0" />
-                      {sub.label}
+                      {t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -879,7 +881,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setAccountingOpen(!accountingOpen)}
-            title={collapsed ? "Accounting" : ""}
+            title={collapsed ? t("Accounting") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isAccountingActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -893,7 +895,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Accounting</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Accounting")}</span>
                 <IconChevron open={accountingOpen} />
               </>
             )}
@@ -902,13 +904,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {accountingSubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -921,7 +923,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setBankingOpen(!bankingOpen)}
-            title={collapsed ? "Banking" : ""}
+            title={collapsed ? t("Banking") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isBankingActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -935,7 +937,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Banking</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Banking")}</span>
                 <IconChevron open={bankingOpen} />
               </>
             )}
@@ -944,13 +946,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {bankingSubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -963,7 +965,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setHrmOpen(!hrmOpen)}
-            title={collapsed ? "HRM" : ""}
+            title={collapsed ? t("HRM") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isHrmActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -977,7 +979,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">HRM</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("HRM")}</span>
                 <IconChevron open={hrmOpen} />
               </>
             )}
@@ -986,13 +988,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {hrmSubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -1005,7 +1007,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setSalaryOpen(!salaryOpen)}
-            title={collapsed ? "Salary" : ""}
+            title={collapsed ? t("Salary") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isSalaryActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -1019,7 +1021,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Salary</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Salary")}</span>
                 <IconChevron open={salaryOpen} />
               </>
             )}
@@ -1028,13 +1030,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {salarySubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -1047,7 +1049,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setGstReportOpen(!gstReportOpen)}
-            title={collapsed ? "GST Report" : ""}
+            title={collapsed ? t("GST Report") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isGstReportActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -1061,7 +1063,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">GST Report</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("GST Report")}</span>
                 <IconChevron open={gstReportOpen} />
               </>
             )}
@@ -1070,13 +1072,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {gstReportSubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -1089,7 +1091,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setLoanOpen(!loanOpen)}
-            title={collapsed ? "Loan Management" : ""}
+            title={collapsed ? t("Loan Management") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isLoanActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -1103,7 +1105,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Loan Management</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Loan Management")}</span>
                 <IconChevron open={loanOpen} />
               </>
             )}
@@ -1112,13 +1114,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {loanSubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -1131,7 +1133,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setReportOpen(!reportOpen)}
-            title={collapsed ? "Report" : ""}
+            title={collapsed ? t("Report") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isReportActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -1145,7 +1147,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Report</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Report")}</span>
                 <IconChevron open={reportOpen} />
               </>
             )}
@@ -1154,13 +1156,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {reportSubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -1173,7 +1175,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setSmsEmailOpen(!smsEmailOpen)}
-            title={collapsed ? "SMS & Email" : ""}
+            title={collapsed ? t("SMS & Email") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isSmsEmailActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -1187,7 +1189,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">SMS & Email</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("SMS & Email")}</span>
                 <IconChevron open={smsEmailOpen} />
               </>
             )}
@@ -1196,13 +1198,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {smsEmailSubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -1215,7 +1217,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setTaskOpen(!taskOpen)}
-            title={collapsed ? "Task Management" : ""}
+            title={collapsed ? t("Task Management") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isTaskActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -1229,7 +1231,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">Task Management</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("Task Management")}</span>
                 <IconChevron open={taskOpen} />
               </>
             )}
@@ -1238,13 +1240,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {taskSubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -1257,7 +1259,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
         <div>
           <button
             onClick={() => !collapsed && setUserMgmtOpen(!userMgmtOpen)}
-            title={collapsed ? "User Management" : ""}
+            title={collapsed ? t("User Management") : ""}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isUserMgmtActive
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -1271,7 +1273,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             </span>
             {!collapsed && (
               <>
-                <span className="text-sm font-medium flex-1 text-left">User Management</span>
+                <span className="text-sm font-medium flex-1 text-left">{t("User Management")}</span>
                 <IconChevron open={userMgmtOpen} />
               </>
             )}
@@ -1280,13 +1282,13 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             <div className="mt-1 ml-3 border-l-2 border-blue-500 pl-2 space-y-0.5">
               {userManagementSubItems.map((section) => (
                 <div key={section.group}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{section.group}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 px-2 py-1.5 mt-1">{t(section.group)}</p>
                   {section.items.map((sub) => (
                     <Link key={sub.href} href={sub.href}
                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all duration-150 ${
                         isActive(sub.href) ? "bg-blue-500 text-white font-semibold" : "text-blue-200 hover:bg-blue-700 hover:text-white"
                       }`}>
-                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{sub.label}
+                      <span className="w-1 h-1 rounded-full bg-current shrink-0" />{t(sub.label)}
                     </Link>
                   ))}
                 </div>
@@ -1300,7 +1302,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
           <Link
             key={item.href}
             href={item.href}
-            title={collapsed ? item.label : ""}
+            title={collapsed ? t(item.label) : ""}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
               isActive(item.href)
                 ? "bg-white text-[#1E3A8A] font-semibold shadow-md"
@@ -1308,7 +1310,7 @@ export default function Sidebar({ mobileOpen = false, onClose }) {
             }`}
           >
             <span className="shrink-0">{item.icon}</span>
-            {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
+            {!collapsed && <span className="text-sm font-medium truncate">{t(item.label)}</span>}
           </Link>
         ))}
       </nav>

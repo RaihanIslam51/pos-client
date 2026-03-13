@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { useLanguage } from "@/lib/LanguageContext";
 
-function StatusBadge({ stock, alertQty }) {
+function StatusBadge({ stock, alertQty, t }) {
   if (stock === 0)
-    return <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-red-100 text-red-600 whitespace-nowrap">Out of Stock</span>;
+    return <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-red-100 text-red-600 whitespace-nowrap">{t("Out of Stock")}</span>;
   if (stock <= alertQty)
-    return <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-orange-100 text-orange-600 whitespace-nowrap">Low Stock</span>;
-  return <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-green-100 text-green-600 whitespace-nowrap">In Stock</span>;
+    return <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-orange-100 text-orange-600 whitespace-nowrap">{t("Low Stock")}</span>;
+  return <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-green-100 text-green-600 whitespace-nowrap">{t("In Stock")}</span>;
 }
 
 function StatCard({ label, value, color }) {
@@ -32,6 +33,7 @@ function StatCard({ label, value, color }) {
 }
 
 export default function StockPanel({ onClose }) {
+  const { t } = useLanguage();
   const [products, setProducts] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState("");
@@ -65,10 +67,10 @@ export default function StockPanel({ onClose }) {
   });
 
   const FILTERS = [
-    { key: "all", label: `All (${products.length})` },
-    { key: "out", label: `Out (${outCount})` },
-    { key: "low", label: `Low (${lowCount})` },
-    { key: "ok",  label: `OK (${okCount})` },
+    { key: "all", label: `${t("All")} (${products.length})` },
+    { key: "out", label: `${t("Out")} (${outCount})` },
+    { key: "low", label: `${t("Low")} (${lowCount})` },
+    { key: "ok",  label: `${t("OK")} (${okCount})` },
   ];
 
   return (
@@ -77,9 +79,9 @@ export default function StockPanel({ onClose }) {
       {/* ── Page Header ── */}
       <div className="flex flex-row items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#1E3A8A]">Stock Overview</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-[#1E3A8A]">{t("Stock Overview")}</h2>
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-            All products sorted by stock level · lowest to highest
+            {t("All products sorted by stock level · lowest to highest")}
           </p>
         </div>
         <button
@@ -89,16 +91,16 @@ export default function StockPanel({ onClose }) {
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          <span className="hidden xs:inline sm:inline">Back</span>
+          <span className="hidden xs:inline sm:inline">{t("Back")}</span>
         </button>
       </div>
 
       {/* ── Stats Cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
-        <StatCard label="Total Products" value={products.length} color="blue" />
-        <StatCard label="Out of Stock"   value={outCount}        color="red" />
-        <StatCard label="Low Stock"      value={lowCount}        color="orange" />
-        <StatCard label="In Stock"       value={okCount}         color="green" />
+        <StatCard label={t("Total Products")} value={products.length} color="blue" />
+        <StatCard label={t("Out of Stock")}   value={outCount}        color="red" />
+        <StatCard label={t("Low Stock")}      value={lowCount}        color="orange" />
+        <StatCard label={t("In Stock")}       value={okCount}         color="green" />
       </div>
 
       {/* ── Search + Filter ── */}
@@ -108,7 +110,7 @@ export default function StockPanel({ onClose }) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, barcode, category..."
+            placeholder={t("Search by name, barcode, category...")}
             className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent"
           />
           <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,11 +140,11 @@ export default function StockPanel({ onClose }) {
         {loading ? (
           <div className="py-16 flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-[#1E3A8A]/20 border-t-[#1E3A8A] rounded-full animate-spin" />
-            <p className="text-sm text-gray-400">Loading products…</p>
+            <p className="text-sm text-gray-400">{t("Loading products...")}</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-gray-400 text-sm">No products found</p>
+            <p className="text-gray-400 text-sm">{t("No products found")}</p>
           </div>
         ) : (
           <>
@@ -152,12 +154,12 @@ export default function StockPanel({ onClose }) {
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">#</th>
-                    <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">Product</th>
-                    <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">Category</th>
-                    <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">Barcode</th>
-                    <th className="text-center text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">Alert Qty</th>
-                    <th className="text-center text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">Stock</th>
-                    <th className="text-center text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">Status</th>
+                    <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">{t("Product")}</th>
+                    <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">{t("Category")}</th>
+                    <th className="text-left text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">{t("Barcode")}</th>
+                    <th className="text-center text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">{t("Alert Qty")}</th>
+                    <th className="text-center text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">{t("Stock")}</th>
+                    <th className="text-center text-xs font-bold text-gray-500 uppercase tracking-wider px-5 py-3">{t("Status")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -177,7 +179,7 @@ export default function StockPanel({ onClose }) {
                             <div className={`w-1.5 h-8 rounded-full shrink-0 ${isOut ? "bg-red-400" : isLow ? "bg-orange-400" : "bg-green-400"}`} />
                             <div>
                               <p className="font-semibold text-gray-800">{p.name}</p>
-                              {p.unit && <p className="text-xs text-gray-400">Unit: {p.unit}</p>}
+                              {p.unit && <p className="text-xs text-gray-400">{t("Unit")}: {p.unit}</p>}
                             </div>
                           </div>
                         </td>
@@ -190,7 +192,7 @@ export default function StockPanel({ onClose }) {
                           </span>
                         </td>
                         <td className="px-5 py-3 text-center">
-                          <StatusBadge stock={p.stock} alertQty={p.alertQuantity} />
+                          <StatusBadge stock={p.stock} alertQty={p.alertQuantity} t={t} />
                         </td>
                       </tr>
                     );
@@ -217,7 +219,7 @@ export default function StockPanel({ onClose }) {
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-800 text-sm truncate">{p.name}</p>
                       <p className="text-xs text-gray-400 mt-0.5 truncate">
-                        {[p.category?.name, p.barcode, p.unit ? `Unit: ${p.unit}` : null]
+                        {[p.category?.name, p.barcode, p.unit ? `${t("Unit")}: ${p.unit}` : null]
                           .filter(Boolean)
                           .join(" · ") || "—"}
                       </p>
@@ -227,7 +229,7 @@ export default function StockPanel({ onClose }) {
                       <span className={`text-lg font-bold leading-none ${isOut ? "text-red-600" : isLow ? "text-orange-600" : "text-gray-800"}`}>
                         {p.stock}
                       </span>
-                      <StatusBadge stock={p.stock} alertQty={p.alertQuantity} />
+                      <StatusBadge stock={p.stock} alertQty={p.alertQuantity} t={t} />
                     </div>
                   </div>
                 );
@@ -238,7 +240,7 @@ export default function StockPanel({ onClose }) {
 
         {!loading && filtered.length > 0 && (
           <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-400">
-            Showing {filtered.length} of {products.length} products · sorted by stock ascending
+            {t("Showing")} {filtered.length} {t("of")} {products.length} {t("Products")} · {t("sorted by stock ascending")}
           </div>
         )}
       </div>

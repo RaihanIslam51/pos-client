@@ -39,7 +39,14 @@ function ItemRow({ item, products, onSelectProduct, onUpdate, onRemove }) {
   };
 
   const sugg = localSearch.trim()
-    ? products.filter((p) => p.name.toLowerCase().includes(localSearch.toLowerCase()))
+    ? products
+        .filter((p) => p.name.toLowerCase().includes(localSearch.toLowerCase()))
+        .sort((a, b) => {
+          const aStarts = a.name.toLowerCase().startsWith(localSearch.toLowerCase());
+          const bStarts = b.name.toLowerCase().startsWith(localSearch.toLowerCase());
+          if (aStarts !== bStarts) return bStarts - aStarts;
+          return a.name.localeCompare(b.name);
+        })
     : products;
 
   const unitP     = parseFloat(item.unitPrice) || 0;
@@ -48,46 +55,48 @@ function ItemRow({ item, products, onSelectProduct, onUpdate, onRemove }) {
   const afterDisc = Math.max(0, unitP - discItem);
   const total     = qty * afterDisc;
 
+  const hasDiscount = parseFloat(item.discItem) > 0;
+
   return (
-    <tr className="border-b border-gray-200">
-      <td className="px-2 py-1.5">
+    <tr className={`border-b border-gray-200 ${hasDiscount ? 'bg-green-50' : ''}`}>
+      <td className="px-2 sm:px-3 py-2">
         <div className="relative" ref={ref}>
-          <div className="flex items-center border border-gray-300 rounded bg-white">
+          <div className={`flex items-center border rounded-lg bg-white hover:border-blue-400 transition-colors ${hasDiscount ? 'border-green-400 ring-1 ring-green-200' : 'border-gray-300'}`}>
             <input type="text"
               value={open ? localSearch : item.productSearch}
               autoComplete="off"
               onChange={(e) => { setLocalSearch(e.target.value); if (!open) openDropdown(); }}
               onFocus={openDropdown}
-              placeholder="Search for an item..."
-              className="flex-1 px-2 py-1.5 text-sm outline-none bg-transparent min-w-0" />
+              placeholder="Item..."
+              className="flex-1 px-2 sm:px-3 py-1.5 text-xs sm:text-sm outline-none bg-transparent min-w-0 font-medium text-gray-900" />
             <button type="button" onClick={() => open ? (setOpen(false), setLocalSearch("")) : openDropdown()}
-              className="px-2 text-gray-400 border-l border-gray-300">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              className="px-2 sm:px-3 text-gray-400 hover:text-gray-600 border-l transition-colors" style={{borderLeftColor: hasDiscount ? '#86efac' : '#d1d5db'}}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
           </div>
           {open && sugg.length > 0 && ddPos && (
             <ul style={{ position: "fixed", top: ddPos.top, left: ddPos.left, width: ddPos.width, zIndex: 9999 }}
-              className="bg-white border border-gray-300 shadow-xl max-h-52 overflow-y-auto">
+              className="bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
               {sugg.map((p, i) => (
                 <li key={i} onMouseDown={() => { onSelectProduct(p); setOpen(false); setLocalSearch(""); }}
-                  className="px-3 py-2 cursor-pointer hover:bg-blue-50 flex items-center gap-3 text-sm">
+                  className="px-3 py-2.5 cursor-pointer hover:bg-blue-50 flex items-center gap-3 text-xs sm:text-sm border-b border-gray-100 last:border-b-0 transition-colors">
                   {p.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.image} alt={p.name} className="w-8 h-8 rounded object-cover border border-gray-100 shrink-0" />
+                    <img src={p.image} alt={p.name} className="w-7 h-7 sm:w-8 sm:h-8 rounded object-cover border border-gray-100 shrink-0" />
                   ) : (
-                    <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center shrink-0">
-                      <span className="text-sm">📦</span>
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-gray-100 flex items-center justify-center shrink-0 text-sm">
+                      <span>📦</span>
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-gray-800 truncate">{p.name}</p>
-                    {p.category?.name && <p className="text-xs text-gray-400">{p.category.name}</p>}
+                    {p.category?.name && <p className="text-xs text-gray-500">{p.category.name}</p>}
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-xs font-bold text-[#1E3A8A]">৳{p.sellingPrice || 0}</p>
-                    <p className="text-xs text-gray-400">{p.stock ?? "—"} in stock</p>
+                    <p className="text-xs font-bold" style={{color:"#1E3A8A"}}>৳{p.sellingPrice || 0}</p>
+                    <p className="text-xs text-gray-500">{p.stock ?? "—"} qty</p>
                   </div>
                 </li>
               ))}
@@ -95,35 +104,42 @@ function ItemRow({ item, products, onSelectProduct, onUpdate, onRemove }) {
           )}
         </div>
       </td>
-      <td className="px-2 py-1.5 w-24">
+      <td className="px-1 sm:px-2 py-2 w-16 sm:w-24">
         <input type="text" value={item.wty} onChange={(e) => onUpdate("wty", e.target.value)}
-          placeholder="wty" className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-gray-50 text-center outline-none focus:border-blue-400" />
+          placeholder="wty" className="w-full border border-gray-300 rounded px-1.5 sm:px-2 py-1.5 text-xs sm:text-sm bg-gray-50 text-center outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
       </td>
-      <td className="px-2 py-1.5 w-20">
+      <td className="px-1 sm:px-2 py-2 w-14 sm:w-20">
         <input type="number" min="1" value={item.qty} onChange={(e) => onUpdate("qty", e.target.value)}
-          className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm text-center outline-none focus:border-blue-400" />
+          className="w-full border border-gray-300 rounded px-1.5 sm:px-2 py-1.5 text-xs sm:text-sm text-center outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
       </td>
-      <td className="px-2 py-1.5 w-28">
+      <td className="px-1 sm:px-2 py-2 w-20 sm:w-28">
         <input type="number" min="0" step="0.01" value={item.unitPrice} onChange={(e) => onUpdate("unitPrice", e.target.value)}
-          placeholder="0" className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm text-center outline-none focus:border-blue-400" />
+          placeholder="0" className="w-full border border-gray-300 rounded px-1.5 sm:px-2 py-1.5 text-xs sm:text-sm text-center outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
       </td>
-      <td className="px-2 py-1.5 w-28">
+      <td className="px-1 sm:px-2 py-2 w-20 sm:w-28">
         <input type="number" min="0" step="0.01" value={item.discItem} onChange={(e) => onUpdate("discItem", e.target.value)}
-          placeholder="0" className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm text-center outline-none focus:border-blue-400" />
+          placeholder="0" className={`w-full border rounded px-1.5 sm:px-2 py-1.5 text-xs sm:text-sm text-center outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${hasDiscount ? 'border-green-400 bg-green-50 font-semibold text-green-700' : 'border-gray-300'}`} />
       </td>
-      <td className="px-2 py-1.5 w-28">
-        <input type="text" readOnly value={afterDisc.toFixed(2)}
-          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm text-center bg-gray-100 text-[#1E3A8A] font-medium outline-none cursor-default" />
+      <td className="px-1 sm:px-2 py-2 w-20 sm:w-28">
+        <div className="w-full border border-gray-200 rounded px-1.5 sm:px-2 py-1.5 text-xs sm:text-sm text-center bg-gray-50 font-medium outline-none cursor-default" style={{color:"#1E3A8A"}}>
+          {afterDisc.toFixed(2)}
+        </div>
       </td>
-      <td className="px-2 py-1.5 w-28">
-        <input type="text" readOnly value={total.toFixed(2)}
-          className="w-full border border-gray-200 rounded px-2 py-1.5 text-sm text-center bg-gray-100 font-medium outline-none cursor-default" />
+      <td className="px-1 sm:px-2 py-2 w-20 sm:w-28">
+        <div className="w-full border border-gray-200 rounded px-1.5 sm:px-2 py-1.5 text-xs sm:text-sm text-center bg-gray-50 font-bold outline-none cursor-default">
+          {total.toFixed(2)}
+        </div>
       </td>
-      <td className="px-2 py-1.5 w-16 text-center">
-        <button type="button" onClick={onRemove}
-          className="w-7 h-7 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded transition-colors mx-auto text-lg font-bold leading-none">
-          −
-        </button>
+      <td className="px-1 py-2 w-12 text-center">
+        <div className="flex flex-col items-center gap-1">
+          {hasDiscount && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 bg-green-500 text-white rounded-full whitespace-nowrap">Paid</span>
+          )}
+          <button type="button" onClick={onRemove}
+            className="w-7 h-7 flex items-center justify-center bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-lg transition-colors mx-auto text-sm font-bold leading-none active:scale-95">
+            −
+          </button>
+        </div>
       </td>
     </tr>
   );
@@ -149,6 +165,7 @@ export default function CreateSalesPage() {
   const [selectedCust, setSelectedCust] = useState(null);
   const custRef = useRef(null);
 
+  const [status,   setStatus]   = useState("completed");
   const [custInfo, setCustInfo] = useState({ name: "", mobile: "", salesPer: "", comm: "0" });
   const [scanVal,  setScanVal]  = useState("");
   const [items,    setItems]    = useState(() => [newRow()]);
@@ -225,13 +242,19 @@ export default function CreateSalesPage() {
 
   const rowTotal    = (it) => (parseFloat(it.qty) || 0) * Math.max(0, (parseFloat(it.unitPrice) || 0) - (parseFloat(it.discItem) || 0));
   const itemTotal   = items.reduce((s, it) => s + rowTotal(it), 0);
-  const overallDisc = parseFloat(pay.overallDiscount) || 0;
+  const overallDisc = Math.max(0, itemTotal * (parseFloat(pay.overallDiscount) || 0) / 100);
   const delivery    = parseFloat(pay.deliveryCost)    || 0;
   const grandTotal  = Math.max(0, itemTotal - overallDisc + delivery);
+  const handleAutoFillPaid = () => setPay({ ...pay, paid: grandTotal.toFixed(2) });
   const paidAmt     = parseFloat(pay.paid) || 0;
   const due         = Math.max(0, grandTotal - paidAmt);
   const change_     = Math.max(0, paidAmt - grandTotal);
   const totalQty    = items.reduce((s, it) => s + (parseFloat(it.qty) || 0), 0);
+
+  // Auto-fill paid amount with grand total
+  useEffect(() => {
+    setPay((prevPay) => ({ ...prevPay, paid: grandTotal.toFixed(2) }));
+  }, [grandTotal]);
 
   const handleSave = async (status) => {
     const valid = items.filter((it) => it.product);
@@ -255,7 +278,15 @@ export default function CreateSalesPage() {
         status,
         notes: pay.notes,
       });
-      router.push("/dashboard/sales/list");
+      
+      // Redirect based on status and due amount
+      if (status === "hold") {
+        router.push("/dashboard/sales/list-hold");
+      } else if (due > 0) {
+        router.push("/dashboard/sales/list-due");
+      } else {
+        router.push("/dashboard/sales/list");
+      }
     } catch (err) {
       setError(err.message || "Failed to save");
     } finally {
@@ -264,29 +295,28 @@ export default function CreateSalesPage() {
   };
 
   return (
-    <div className="min-h-full flex flex-col bg-white pb-14">
+    <div className="min-h-screen flex flex-col bg-gray-50 pb-32 sm:pb-20">
 
       {/* ── Top Header ── */}
-      <div className="bg-white border-b border-gray-200 px-4 pt-3 pb-3">
-        <h1 className="text-sm font-bold mb-2" style={{color:"#1E3A8A"}}>Sell Invoice</h1>
+      <div className="bg-white border-b border-gray-200 px-3 sm:px-4 py-3">
+        <h1 className="text-base sm:text-lg font-bold mb-3" style={{color:"#1E3A8A"}}>Sell Invoice</h1>
 
-        <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
+        <div className="space-y-3 sm:space-y-0">
 
+          {/* Row 1: Customer Name | Scan */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Customer Name */}
           <div>
-            <div className="flex items-center gap-1 mb-1">
-              <span className="text-xs font-semibold text-gray-700">Customer Name</span>
-             
-            </div>
-            <div className="relative w-56" ref={custRef}>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Customer Name</label>
+            <div className="relative" ref={custRef}>
               <div className="flex items-center border border-gray-300 rounded bg-white">
                 <input type="text" value={custSearch} autoComplete="off"
                   onChange={(e) => { setCustSearch(e.target.value); setCustOpen(true); setSelectedCust(null); }}
                   onFocus={() => setCustOpen(true)}
                   placeholder="default_customer"
                   className="flex-1 px-2 py-1.5 text-sm outline-none bg-transparent" />
-                <button type="button" onClick={() => setCustOpen((v) => !v)} className="px-2 border-l border-gray-300 text-gray-500">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                <button type="button" onClick={() => setCustOpen((v) => !v)} className="px-3 border-l border-gray-300 text-gray-400 hover:text-gray-600 transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </button>
               </div>
               {custOpen && (
@@ -308,91 +338,79 @@ export default function CreateSalesPage() {
 
           {/* Scan */}
           <div>
-            <div className="h-6 mb-1" />
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Scan Product</label>
             <input type="text" value={scanVal} autoComplete="off"
               onChange={(e) => { setScanVal(e.target.value); setError(""); }}
               onKeyDown={handleScan}
-              placeholder="scan product..."
-              className="border border-gray-300 rounded px-3 py-1.5 text-sm outline-none focus:border-blue-500 bg-white w-40" />
+              placeholder="Scan barcode..."
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all" />
           </div>
-
-          <div className="flex-1" />
+          </div>
+          
+          {/* Row 2: Customer Details */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
-              Name<span className="text-red-500">*</span> :
-            </label>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Name <span className="text-red-500">*</span></label>
             <input type="text" value={custInfo.name}
               onChange={(e) => setCustInfo({ ...custInfo, name: e.target.value })}
-              placeholder="Name"
-              className="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none focus:border-blue-500 bg-white w-40" />
+              placeholder="Enter name"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all" />
           </div>
 
           {/* Mobile */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
-              Mobile<span className="text-red-500">*</span> :
-            </label>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
             <input type="text" value={custInfo.mobile}
               onChange={(e) => setCustInfo({ ...custInfo, mobile: e.target.value })}
               placeholder="Mobile"
-              className="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none focus:border-blue-500 bg-white w-36" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all" />
           </div>
 
-          {/* Sales Per */}
+          {/* Sales Person */}
           <div>
-            <label className="flex items-center gap-1 text-xs font-semibold text-gray-700 mb-1">
-              Sales Per
-              <button type="button" className="w-4 h-4 flex items-center justify-center bg-[#1E3A8A] text-white rounded text-xs font-bold leading-none">+</button>
-              <span className="text-red-500">*</span> :
-            </label>
-            <div className="flex items-center border border-gray-300 rounded bg-white w-40">
-              <input type="text" value={custInfo.salesPer}
-                onChange={(e) => setCustInfo({ ...custInfo, salesPer: e.target.value })}
-                placeholder="Salesperson 5"
-                className="flex-1 px-2 py-1.5 text-sm outline-none bg-transparent" />
-              <button type="button" className="px-2 border-l border-gray-300 text-gray-500">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </button>
-            </div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Salesperson</label>
+            <input type="text" value={custInfo.salesPer}
+              onChange={(e) => setCustInfo({ ...custInfo, salesPer: e.target.value })}
+              placeholder="Name/ID"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all" />
           </div>
 
           {/* Comm */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
-              Comm<span className="text-red-500">*</span> :
-            </label>
+            <label className="block text-xs font-semibold text-gray-700 mb-1">Comm</label>
             <input type="number" value={custInfo.comm}
               onChange={(e) => setCustInfo({ ...custInfo, comm: e.target.value })}
               placeholder="0"
-              className="border border-gray-300 rounded px-2 py-1.5 text-sm outline-none focus:border-blue-500 bg-white w-20" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all" />
           </div>
-
+        </div>
         </div>
       </div>
 
       {/* ── Error ── */}
       {error && (
-        <div className="mx-4 mt-2 flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
-          <span className="flex-1">{error}</span>
-          <button onClick={() => setError("")} className="font-bold text-red-400 hover:text-red-600">✕</button>
+        <div className="mx-3 sm:mx-4 mt-3 flex items-start gap-2 p-3 bg-red-50 border border-red-300 rounded-lg text-sm text-red-700">
+          <span className="flex-1 leading-relaxed">{error}</span>
+          <button onClick={() => setError("")} className="font-bold text-red-500 hover:text-red-700 transition-colors shrink-0">✕</button>
         </div>
       )}
 
       {/* ── Items Table ── */}
-      <div className="bg-white border-b border-gray-200 overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="bg-white border-b border-gray-200 overflow-x-auto flex-1">
+        <div className="min-w-max sm:min-w-0">
+        <table className="w-full text-xs sm:text-sm">
           <thead>
-            <tr className="border-b border-gray-200 bg-white">
-              <th className="text-left text-xs font-semibold text-gray-700 px-2 py-2">Item Name</th>
-              <th className="text-center text-xs font-semibold text-gray-700 px-2 py-2 w-24">Wty</th>
-              <th className="text-center text-xs font-semibold text-gray-700 px-2 py-2 w-20">Qty</th>
-              <th className="text-center text-xs font-semibold text-gray-700 px-2 py-2 w-28">Unit Price</th>
-              <th className="text-center text-xs font-semibold text-gray-700 px-2 py-2 w-28">Disc./Item</th>
-              <th className="text-center text-xs font-semibold text-gray-700 px-2 py-2 w-28">After disc</th>
-              <th className="text-center text-xs font-semibold text-gray-700 px-2 py-2 w-28">Total</th>
-              <th className="text-center text-xs font-semibold text-gray-700 px-2 py-2 w-16">Action</th>
+            <tr className="border-b border-gray-300 bg-gray-50 sticky top-0">
+              <th className="text-left text-xs font-bold text-gray-700 px-2 sm:px-3 py-2.5">Item</th>
+              <th className="text-center text-xs font-bold text-gray-700 px-1 sm:px-2 py-2.5 w-16 sm:w-24">Wty</th>
+              <th className="text-center text-xs font-bold text-gray-700 px-1 sm:px-2 py-2.5 w-14 sm:w-20">Qty</th>
+              <th className="text-center text-xs font-bold text-gray-700 px-1 sm:px-2 py-2.5 w-20 sm:w-28">Price</th>
+              <th className="text-center text-xs font-bold text-gray-700 px-1 sm:px-2 py-2.5 w-20 sm:w-28">Disc</th>
+              <th className="text-center text-xs font-bold text-gray-700 px-1 sm:px-2 py-2.5 w-20 sm:w-28">After</th>
+              <th className="text-center text-xs font-bold text-gray-700 px-1 sm:px-2 py-2.5 w-20 sm:w-28">Total</th>
+              <th className="text-center text-xs font-bold text-gray-700 px-1 py-2.5 w-12">Act</th>
             </tr>
           </thead>
           <tbody>
@@ -406,105 +424,135 @@ export default function CreateSalesPage() {
                 onRemove={() => removeRow(idx)}
               />
             ))}
+            {/* Add Row Button */}
+            <tr className="border-t border-gray-300 bg-gray-50 h-12">
+              <td colSpan="8" className="px-2 sm:px-3 py-2">
+                <button type="button" onClick={addRow}
+                  className="w-8 h-8 flex items-center justify-center bg-[#1E3A8A] hover:bg-blue-900 text-white rounded-lg text-lg font-bold leading-none transition-colors duration-200 active:scale-95">
+                  +
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
+        </div>
 
-        {/* Qty count + add row */}
-        <div className="flex items-center gap-3 px-3 py-2">
-          <span className="text-sm font-bold text-gray-800">
-            {totalQty.toFixed(2)}
-            <span className="text-gray-400 font-normal"> / {items.length}</span>
+        {/* Qty count */}
+        <div className="flex items-center px-3 sm:px-4 py-2.5 bg-gray-50 border-t border-gray-200">
+          <span className="text-xs sm:text-sm font-bold text-gray-800">
+            Total: {totalQty.toFixed(2)} qty <span className="text-gray-500 font-normal">/ {items.length} rows</span>
           </span>
-          <button type="button" onClick={addRow}
-            className="w-7 h-7 flex items-center justify-center bg-[#1E3A8A] hover:bg-blue-900 text-white rounded-full text-xl font-bold leading-none transition-colors">
-            +
-          </button>
         </div>
       </div>
 
       {/* ── Payment Section ── */}
-      <div className="bg-white mt-2">
+      <div className="bg-white border-t border-gray-200">
 
-        {/* Row 1: Item Total | Overall Discount | Delivery Cost */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 border-b border-gray-200">
-          <div className="px-4 py-3 sm:border-r border-gray-200 border-b sm:border-b-0">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Item Total</label>
-            <input type="text" readOnly value={itemTotal.toFixed(2)}
-              className="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-100 text-center font-semibold outline-none cursor-default" />
+        {/* Row 1: Item Total | Overall Discount (%) | Delivery Cost */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-b border-gray-200 p-3 sm:p-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Item Total</label>
+            <div className="text-2xl sm:text-3xl font-bold" style={{color:"#1E3A8A"}}>
+              ৳{itemTotal.toFixed(2)}
+            </div>
           </div>
-          <div className="px-4 py-3 sm:border-r border-gray-200 border-b sm:border-b-0">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Overall Discount</label>
-            <input type="number" min="0" step="0.01" value={pay.overallDiscount}
-              onChange={(e) => setPay({ ...pay, overallDiscount: e.target.value })}
-              placeholder="0"
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500" />
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Discount (%)</label>
+            <div className="flex items-center gap-2">
+              <input type="number" min="0" max="100" step="0.01" value={pay.overallDiscount}
+                onChange={(e) => setPay({ ...pay, overallDiscount: e.target.value })}
+                placeholder="0"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+              <div className="text-right">
+                <div className="text-xs text-gray-600">= ৳</div>
+                <div className="font-bold" style={{color:"#1E3A8A"}}>{overallDisc.toFixed(2)}</div>
+              </div>
+            </div>
           </div>
-          <div className="px-4 py-3">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Delivery Cost</label>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Delivery</label>
             <input type="number" min="0" step="0.01" value={pay.deliveryCost}
               onChange={(e) => setPay({ ...pay, deliveryCost: e.target.value })}
               placeholder="0"
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500" />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
           </div>
         </div>
 
-        {/* Row 2: Pay via | Paid | Due */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 border-b border-gray-200">
-          <div className="px-4 py-3 sm:border-r border-gray-200 border-b sm:border-b-0">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Pay via</label>
+        {/* Row 2: Pay via | Status | Paid | Due */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 border-b border-gray-200 p-3 sm:p-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Pay via</label>
             <select value={pay.payVia} onChange={(e) => setPay({ ...pay, payVia: e.target.value })}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500 bg-white">
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all">
               <option value="cash">Cash</option>
               <option value="card">Card</option>
               <option value="mobile">Mobile Banking</option>
               <option value="credit">Credit</option>
             </select>
           </div>
-          <div className="px-4 py-3 sm:border-r border-gray-200 border-b sm:border-b-0">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Paid</label>
-            <input type="number" min="0" step="0.01" value={pay.paid}
-              onChange={(e) => setPay({ ...pay, paid: e.target.value })}
-              placeholder="0.00"
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500" />
+          {/* <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5\">Status</label>
+            <select value={status} onChange={(e) => setStatus(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all\">
+              <option value="completed">Completed</option>
+              <option value="pending">Pending</option>
+              <option value="hold">Hold</option>
+              <option value="instalment">Instalment</option>
+            </select>
+          </div> */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Paid Amount</label>
+            <div className="flex gap-2">
+              <input type="number" min="0" step="0.01" value={pay.paid}
+                onChange={(e) => setPay({ ...pay, paid: e.target.value })}
+                placeholder="0.00"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+              <button type="button" onClick={handleAutoFillPaid}
+                className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded-lg transition-colors duration-200 active:scale-95 whitespace-nowrap">
+                Auto
+              </button>
+            </div>
           </div>
-          <div className="px-4 py-3">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Due</label>
-            <div className="w-full bg-yellow-400 rounded px-3 py-2 text-sm font-bold text-white text-center">
-              {due.toFixed(2)}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Due Amount</label>
+            <div className="w-full bg-yellow-400 hover:bg-yellow-500 rounded-lg px-3 py-2 text-sm font-bold text-white text-center transition-colors">
+              ৳{due.toFixed(2)}
             </div>
           </div>
         </div>
 
-        {/* Row 3: Notes (span 2) | Change */}
-        <div className="grid grid-cols-1 sm:grid-cols-3">
-          <div className="px-4 py-3 sm:col-span-2 sm:border-r border-gray-200 border-b sm:border-b-0">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Notes</label>
+        {/* Row 3: Notes | Change */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 p-3 sm:p-4">
+          <div className="lg:col-span-3">
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Notes (Optional)</label>
             <textarea value={pay.notes} onChange={(e) => setPay({ ...pay, notes: e.target.value })}
-              rows={2} placeholder="Notes"
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500 resize-none" />
+              rows={2} placeholder="Add any notes here..."
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all" />
           </div>
-          <div className="px-4 py-3">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Change</label>
-            <div className="w-full bg-[#1E3A8A] rounded px-3 py-2 text-sm font-bold text-white text-center">
-              {change_.toFixed(2)}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Change</label>
+            <div className="w-full bg-[#1E3A8A] hover:bg-blue-900 rounded-lg px-3 py-2 text-sm font-bold text-white text-center transition-colors">
+              ৳{change_.toFixed(2)}
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Sticky Bottom Bar ── */}
-      <div className="fixed bottom-0 left-0 right-0 lg:left-64 flex h-14 z-50">
-        <div className="flex-1 flex items-center justify-center text-white text-2xl font-bold" style={{background:"#1E3A8A"}}>
-          {grandTotal.toFixed(2)}
+      <div className="fixed bottom-0 left-0 right-0 lg:left-64 flex flex-col sm:flex-row h-auto sm:h-16 z-50 border-t border-gray-200 bg-white shadow-lg">
+        <div className="w-full sm:flex-1 flex items-center justify-center px-4 py-4 sm:py-0 text-white text-2xl sm:text-3xl font-bold rounded-t-lg sm:rounded-none transition-all" style={{background:"#1E3A8A"}}>
+          ৳{grandTotal.toFixed(2)}
         </div>
+        <div className="flex gap-2 sm:gap-0 px-4 sm:px-0 pb-3 sm:pb-0">
         <button type="button" onClick={() => handleSave("completed")} disabled={saving || holding}
-          className="w-48 flex items-center justify-center bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-bold uppercase tracking-wider transition-colors disabled:opacity-60">
-          {saving ? "SAVING..." : "CREATE SALE"}
+          className="flex-1 sm:flex-none sm:w-40 lg:w-48 flex items-center justify-center bg-[#2563EB] hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-bold uppercase tracking-wide transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded sm:rounded-none h-11 sm:h-16 active:scale-95">
+          {saving ? "SAVING..." : "CREATE"}
         </button>
         <button type="button" onClick={() => handleSave("hold")} disabled={holding || saving}
-          className="w-32 flex items-center justify-center bg-slate-600 hover:bg-slate-700 text-white text-sm font-bold uppercase tracking-wider transition-colors disabled:opacity-60">
+          className="flex-1 sm:flex-none sm:w-32 lg:w-36 flex items-center justify-center bg-slate-600 hover:bg-slate-700 active:bg-slate-800 text-white text-xs sm:text-sm font-bold uppercase tracking-wide transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded sm:rounded-none h-11 sm:h-16 active:scale-95">
           {holding ? "..." : "HOLD"}
         </button>
+        </div>
       </div>
 
     </div>

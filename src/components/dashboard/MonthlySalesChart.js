@@ -1,7 +1,9 @@
 "use client";
 import { useState, useMemo, useRef, useEffect } from "react";
+import { useLanguage } from "@/lib/LanguageContext";
 
 export default function MonthlySalesChart({ data = [], month, year }) {
+  const { language, t } = useLanguage();
   const [hoveredDay, setHoveredDay] = useState(null);
   const [svgWidth, setSvgWidth] = useState(700);
   const containerRef = useRef(null);
@@ -21,7 +23,7 @@ export default function MonthlySalesChart({ data = [], month, year }) {
   const isMobile = svgWidth < 480;
   const isTablet = svgWidth < 768;
 
-  const monthName = new Date(year, month - 1, 1).toLocaleString("default", {
+  const monthName = new Date(year, month - 1, 1).toLocaleString(language === "bn" ? "bn-BD" : "en-US", {
     month: "long",
   });
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -70,10 +72,10 @@ export default function MonthlySalesChart({ data = [], month, year }) {
       <div className="flex items-start sm:items-center justify-between mb-3 sm:mb-4 gap-2">
         <div>
           <h3 className="text-sm sm:text-base font-semibold text-gray-800">
-            Monthly Sales Overview
+            {t("Monthly Sales Overview")}
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-            Daily sales for{" "}
+            {t("Daily sales for")}{" "}
             <span className="font-medium text-[#1E3A8A]">
               {monthName} {year}
             </span>
@@ -81,15 +83,15 @@ export default function MonthlySalesChart({ data = [], month, year }) {
         </div>
         {hoveredDay ? (
           <div className="text-right shrink-0">
-            <p className="text-xs text-gray-500">Day {hoveredDay.day}</p>
+            <p className="text-xs text-gray-500">{t("Day")} {hoveredDay.day}</p>
             <p className="text-sm sm:text-base font-bold text-[#1E3A8A]">
               ৳{hoveredDay.total.toLocaleString()}
             </p>
-            <p className="text-xs text-gray-400">{hoveredDay.count} sales</p>
+            <p className="text-xs text-gray-400">{hoveredDay.count} {t("sales")}</p>
           </div>
         ) : (
           <div className="text-right shrink-0 hidden sm:block">
-            <p className="text-xs text-gray-400">Hover a bar</p>
+            <p className="text-xs text-gray-400">{t("Hover a bar")}</p>
           </div>
         )}
       </div>
@@ -235,22 +237,22 @@ export default function MonthlySalesChart({ data = [], month, year }) {
       <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-100 text-xs text-gray-500">
         <div className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-3 rounded-sm bg-[#1E3A8A] opacity-80" />
-          Sales/day
+          {t("Sales/day")}
         </div>
         <span>
-          Active:{" "}
+          {t("Active")}:{" "}
           <span className="font-semibold text-gray-700">
             {dayData.filter((d) => d.total > 0).length}
           </span>
         </span>
         <span>
-          High:{" "}
+          {t("High")}:{" "}
           <span className="font-semibold text-gray-700">
             ৳{Math.max(...dayData.map((d) => d.total)).toLocaleString()}
           </span>
         </span>
         <span>
-          Total:{" "}
+          {t("Total")}:{" "}
           <span className="font-semibold text-gray-700">
             ৳{dayData.reduce((s, d) => s + d.total, 0).toLocaleString()}
           </span>

@@ -1,6 +1,9 @@
+"use client";
 import Link from "next/link";
+import { useLanguage } from "@/lib/LanguageContext";
 
 export default function LowStockAlert({ products = [] }) {
+  const { t } = useLanguage();
   if (products.length === 0) return null;
 
   return (
@@ -8,10 +11,10 @@ export default function LowStockAlert({ products = [] }) {
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-          <h3 className="text-base font-semibold text-gray-800">Low Stock Alert</h3>
+          <h3 className="text-base font-semibold text-gray-800">{t("Low Stock Alert")}</h3>
         </div>
         <Link href="/dashboard/inventory" className="text-sm text-[#1E3A8A] hover:underline font-medium">
-          Manage
+          {t("Manage")}
         </Link>
       </div>
       <div className="p-4 space-y-2">
@@ -23,7 +26,7 @@ export default function LowStockAlert({ products = [] }) {
             </div>
             <div className="text-right">
               <p className="text-sm font-bold text-red-600">{product.stock} {product.unit}</p>
-              <p className="text-xs text-gray-400">Alert: {product.alertQuantity}</p>
+              <p className="text-xs text-gray-400">{t("Alert")}: {product.alertQuantity}</p>
             </div>
           </div>
         ))}

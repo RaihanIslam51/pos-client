@@ -59,6 +59,8 @@ function InvoiceListContent() {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [activePeriod, setActivePeriod] = useState(null);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [bulkDeleteByDateDeleting, setBulkDeleteByDateDeleting] = useState(false);
 
   const setParam = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -75,7 +77,9 @@ function InvoiceListContent() {
       if (endDate) params.append("endDate", endDate);
       if (statusFilter) params.append("status", statusFilter);
       const res = await api.getSales(params.toString() ? `?${params}` : "");
-      setSales(res.data);
+      // Filter to show only completed paid invoices (dueAmount <= 0 AND status = completed)
+      const paidSales = (res.data || []).filter((s) => s.dueAmount <= 0 && s.status === "completed");
+      setSales(paidSales);
     } catch {
     } finally {
       setLoading(false);
@@ -166,6 +170,26 @@ function InvoiceListContent() {
     else setPrintingId(null);
   };
 
+  const handleBulkDeleteByDate = async (days) => {
+    const dayLabels = { "10": "Last 10 days", "30": "Last 30 days", "all": "All paid invoices" };
+    const result = await showConfirm(`Delete ${dayLabels[days]}?`);
+    if (!result.isConfirmed) return;
+
+    setBulkDeleteByDateDeleting(true);
+    try {
+      const res = await api.bulkDeleteSalesByDate(days);
+      showSuccess(`${res.data?.deletedCount || 0} invoices deleted successfully`);
+      setShowBulkDeleteModal(false);
+      setSelectedIds(new Set());
+      setActivePeriod(null);
+      fetchSales();
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      setBulkDeleteByDateDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-3">
 
@@ -207,10 +231,19 @@ function InvoiceListContent() {
                 <option value="cancelled">Cancelled</option>
               </select>
             </div>
-            <div className="col-span-1 flex items-end">
+            <div className="col-span-1 flex items-end gap-2">
+              <button
+                onClick={() => setShowBulkDeleteModal(true)}
+                className="flex-1 bg-red-500 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-red-600 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>Delete By Date</span>
+              </button>
               <Link
                 href="/dashboard/sales/create"
-                className="w-full bg-[#1E3A8A] text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-blue-800 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-[#1E3A8A]/20"
+                className="flex-1 bg-[#1E3A8A] text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-blue-800 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-sm shadow-[#1E3A8A]/20"
               >
                 <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -223,7 +256,7 @@ function InvoiceListContent() {
       </div>
 
       {/* ── Bulk action toolbar ── */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-3 sm:px-4 py-3">
+      {/* <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-3 sm:px-4 py-3">
         <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 items-start sm:items-center justify-between">
           <div className="flex flex-wrap gap-1.5 items-center">
             <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Quick Select:</span>
@@ -275,7 +308,7 @@ function InvoiceListContent() {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* ── Mobile card view (< md) ── */}
       <div className="block md:hidden space-y-2.5">
@@ -480,6 +513,47 @@ function InvoiceListContent() {
           </table>
         </div>
       </div>
+      {/* ── Delete by Date Modal ── */}
+      {showBulkDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-sm w-full">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Delete Invoices by Date</h3>
+              <p className="text-sm text-gray-600 mb-6">SELECT THE TIME PERIOD FOR INVOICES TO DELETE</p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleBulkDeleteByDate("10")}
+                  disabled={bulkDeleteByDateDeleting}
+                  className="w-full px-4 py-3 border border-red-200 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  Delete Last 10 Days
+                </button>
+                <button
+                  onClick={() => handleBulkDeleteByDate("30")}
+                  disabled={bulkDeleteByDateDeleting}
+                  className="w-full px-4 py-3 border border-red-300 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  Delete Last 30 Days
+                </button>
+                <button
+                  onClick={() => handleBulkDeleteByDate("all")}
+                  disabled={bulkDeleteByDateDeleting}
+                  className="w-full px-4 py-3 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
+                >
+                  Delete All Invoices
+                </button>
+              </div>
+              <button
+                onClick={() => setShowBulkDeleteModal(false)}
+                disabled={bulkDeleteByDateDeleting}
+                className="w-full mt-4 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

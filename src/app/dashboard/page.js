@@ -1,52 +1,19 @@
 "use client";
-import { useState, useEffect } from "react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import RecentSales from "@/components/dashboard/RecentSales";
 import LowStockAlert from "@/components/dashboard/LowStockAlert";
 import MonthlySalesChart from "@/components/dashboard/MonthlySalesChart";
 import Link from "next/link";
-import { api } from "@/lib/api";
+import { useLanguage } from "@/lib/LanguageContext";
+import { useDashboardCache } from "@/hooks/useDashboardCache";
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState(null);
-  const [lowStock, setLowStock] = useState([]);
-  const [chartData, setChartData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
+  const { stats, lowStock, chartData, loading } = useDashboardCache();
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsRes, lowStockRes, chartRes, salesReportRes] = await Promise.all([
-          api.getDashboardStats(true),
-          api.getLowStock(),
-          api.getMonthlySalesChart(`?year=${now.getFullYear()}&month=${now.getMonth() + 1}`),
-          api.getSalesReport(),
-        ]);
-
-        const dashboardData = statsRes?.data || {};
-        const fallbackTotals = salesReportRes?.data?.totals || {};
-
-        setStats({
-          ...dashboardData,
-          totalSales: dashboardData.totalSales || {
-            total: fallbackTotals.totalRevenue || 0,
-            count: fallbackTotals.totalTransactions || 0,
-          },
-        });
-        setLowStock(lowStockRes.data);
-        setChartData(chartRes.data || []);
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
 
   const quickActions = [
     { label: "New Sale", href: "/dashboard/pos", icon: "🛒", color: "bg-[#1E3A8A] text-white" },
@@ -88,9 +55,9 @@ export default function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatsCard
-          title="Today's Sales"
+          title={t("Today's Sales")}
           value={`৳${stats?.todaySales?.total?.toFixed(0) || 0}`}
-          subtitle={`${stats?.todaySales?.count || 0} transactions`}
+          subtitle={`${stats?.todaySales?.count || 0} ${t("transactions")}`}
           color="blue"
           icon={
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,9 +66,9 @@ export default function DashboardPage() {
           }
         />
         <StatsCard
-          title="Monthly Revenue"
+          title={t("Monthly Revenue")}
           value={`৳${stats?.monthSales?.total?.toFixed(0) || 0}`}
-          subtitle={`${stats?.monthSales?.count || 0} this month`}
+          subtitle={`${stats?.monthSales?.count || 0} ${t("this month")}`}
           color="green"
           icon={
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,9 +77,9 @@ export default function DashboardPage() {
           }
         />
         <StatsCard
-          title="Total Sales"
+          title={t("Total Sales")}
           value={`৳${stats?.totalSales?.total?.toFixed(0) || 0}`}
-          subtitle={`${stats?.totalSales?.count || 0} all transactions`}
+          subtitle={`${stats?.totalSales?.count || 0} ${t("all transactions")}`}
           color="yellow"
           icon={
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,9 +88,9 @@ export default function DashboardPage() {
           }
         />
         <StatsCard
-          title="Total Products"
+          title={t("Total Products")}
           value={stats?.totalProducts || 0}
-          subtitle="Active products"
+          subtitle={t("Active products")}
           color="purple"
           icon={
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,9 +99,9 @@ export default function DashboardPage() {
           }
         />
         <StatsCard
-          title="Low Stock"
+          title={t("Low Stock")}
           value={stats?.lowStockCount || 0}
-          subtitle="Need restocking"
+          subtitle={t("Need restocking")}
           color="red"
           icon={
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

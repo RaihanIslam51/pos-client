@@ -19,6 +19,10 @@ body {
   font-family: var(--font-sora), 'Sora', sans-serif;
 }
 
+html[lang="bn"] body {
+  font-family: var(--font-bn), var(--font-sora), 'Noto Sans Bengali', sans-serif;
+}
+
 * {
   box-sizing: border-box;
 }

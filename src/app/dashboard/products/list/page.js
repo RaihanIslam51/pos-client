@@ -17,6 +17,8 @@ function ProductsListContent() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const setParam = (key, value) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -59,6 +61,24 @@ function ProductsListContent() {
     }
   };
 
+  const handleBulkDelete = async (days) => {
+    const dayLabels = { "10": "Last 10 days", "30": "Last 30 days", "all": "All products" };
+    const result = await showConfirm(`Delete ${dayLabels[days]}?`);
+    if (!result.isConfirmed) return;
+
+    setBulkDeleting(true);
+    try {
+      const res = await api.bulkDeleteProductsByDate(days);
+      showSuccess(`${res.data.deletedCount} products deleted successfully`);
+      setShowBulkDeleteModal(false);
+      fetchProducts();
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -86,15 +106,26 @@ function ProductsListContent() {
               {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
             </select>
           </div>
-          <Link
-            href="/dashboard/products/create"
-            className="bg-[#1E3A8A] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Product
-          </Link>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setShowBulkDeleteModal(true)}
+              className="bg-red-500 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete by Date
+            </button>
+            <Link
+              href="/dashboard/products/create"
+              className="bg-[#1E3A8A] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 flex-1 sm:flex-none"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add Product
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -107,7 +138,7 @@ function ProductsListContent() {
             <p className="text-4xl mb-2">📦</p><p>No products found</p>
             <Link href="/dashboard/products/create" className="mt-3 inline-block text-[#1E3A8A] font-semibold text-sm hover:underline">+ Create your first product</Link>
           </div>
-        ) : products.map((product, idx) => (
+        ) : products.map((product) => (
           <div key={product._id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -120,12 +151,12 @@ function ProductsListContent() {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-800 text-sm truncate">{product.name}</p>
-                {product.barcode && <p className="text-xs text-gray-400 font-mono">{product.barcode}</p>}
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {product.category?.name && <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">{product.category.name}</span>}
-                  {product.brand?.name && <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">{product.brand.name}</span>}
-                </div>
+                  <p className="font-semibold text-gray-800 text-sm truncate">{product.name}</p>
+                  {product.barcode && <p className="text-xs text-gray-400 font-mono">{product.barcode}</p>}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {product.category?.name && <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">{product.category.name}</span>}
+                    {product.brand?.name && <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">{product.brand.name}</span>}
+                  </div>
                 </div>
               </div>
               <span className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${product.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
@@ -135,9 +166,7 @@ function ProductsListContent() {
             <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-100">
               <div><p className="text-[10px] text-gray-400 uppercase font-semibold">Buy</p><p className="text-sm font-medium text-gray-700">৳{product.purchasePrice}</p></div>
               <div><p className="text-[10px] text-gray-400 uppercase font-semibold">Sell</p><p className="text-sm font-semibold text-[#1E3A8A]">৳{product.sellingPrice}</p></div>
-              <div><p className="text-[10px] text-gray-400 uppercase font-semibold">Stock</p>
-                <p className={`text-sm font-medium ${product.stock <= product.alertQuantity ? "text-red-600" : "text-green-600"}`}>{product.stock} {product.unit}</p>
-              </div>
+              <div><p className="text-[10px] text-gray-400 uppercase font-semibold">Stock</p><p className={`text-sm font-medium ${product.stock <= product.alertQuantity ? "text-red-600" : "text-green-600"}`}>{product.stock} {product.unit}</p></div>
             </div>
             <div className="flex gap-3 mt-3">
               <Link href={`/dashboard/products/create?edit=${product._id}`} className="flex-1 text-center py-1.5 border border-[#1E3A8A] text-[#1E3A8A] rounded-lg text-xs font-semibold hover:bg-blue-50 transition-colors">Edit</Link>
@@ -216,6 +245,46 @@ function ProductsListContent() {
           <div className="px-5 py-3 border-t border-gray-100 text-xs text-gray-500">{products.length} product{products.length !== 1 ? "s" : ""}</div>
         )}
       </div>
+      {showBulkDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-sm w-full">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Delete Products by Date</h3>
+              <p className="text-sm text-gray-600 mb-6">SELECT THE TIME PERIOD FOR PRODUCTS TO DELETE</p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleBulkDelete("10")}
+                  disabled={bulkDeleting}
+                  className="w-full px-4 py-3 border border-red-200 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  Delete Last 10 Days
+                </button>
+                <button
+                  onClick={() => handleBulkDelete("30")}
+                  disabled={bulkDeleting}
+                  className="w-full px-4 py-3 border border-red-300 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  Delete Last 30 Days
+                </button>
+                <button
+                  onClick={() => handleBulkDelete("all")}
+                  disabled={bulkDeleting}
+                  className="w-full px-4 py-3 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
+                >
+                  Delete All Products
+                </button>
+              </div>
+              <button
+                onClick={() => setShowBulkDeleteModal(false)}
+                disabled={bulkDeleting}
+                className="w-full mt-4 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

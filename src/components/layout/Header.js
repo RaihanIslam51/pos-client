@@ -4,15 +4,14 @@ import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/lib/AuthContext";
 import { api } from "@/lib/api";
+import { useLanguage } from "@/lib/LanguageContext";
 
 // Lazy-load calculator (avoids SSR issues with useReducer keyboard listeners)
 const Calculator = dynamic(() => import("@/components/ui/Calculator"), { ssr: false });
 
 const LANGUAGES = [
-  { code: "en", label: "English",  flag: "🇺🇸" },
-  { code: "bn", label: "বাংলা",     flag: "🇧🇩" },
-  { code: "ar", label: "العربية",   flag: "🇸🇦" },
-  { code: "hi", label: "हिंदी",     flag: "🇮🇳" },
+  { code: "en", label: "English", flag: "🇺🇸" },
+  { code: "bn", label: "Bangla", flag: "🇧🇩" },
 ];
 
 function getTitle(pathname) {
@@ -37,14 +36,11 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [showCalc,  setShowCalc]    = useState(false);
   const [showLang,  setShowLang]    = useState(false);
   const [showUser,  setShowUser]    = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [lang, setLang] = useState(() => {
-    if (typeof window === "undefined") return "en";
-    return localStorage.getItem("pos_lang") || "en";
-  });
 
   // ── Global search state ──────────────────────────────────────────────────
   const [searchQ,      setSearchQ]      = useState("");
@@ -57,12 +53,12 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
   const langRef = useRef(null);
   const userRef = useRef(null);
 
-  const title   = getTitle(pathname);
-  const dateStr = new Date().toLocaleDateString("en-US", {
+  const title   = t(getTitle(pathname));
+  const dateStr = new Date().toLocaleDateString(language === "bn" ? "bn-BD" : "en-US", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
 
-  const activeLang = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
+  const activeLang = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -135,8 +131,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
   };
 
   const selectLang = (code) => {
-    setLang(code);
-    localStorage.setItem("pos_lang", code);
+    setLanguage(code);
     setShowLang(false);
   };
 
@@ -147,7 +142,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
         <button
           onClick={onMenuClick}
           className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors lg:hidden mr-1 shrink-0"
-          aria-label="Open menu"
+          aria-label={t("Open menu")}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -167,7 +162,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
           <div className="relative hidden md:block" ref={searchRef}>
             <input
               type="text"
-              placeholder="Search products, customers..."
+              placeholder={t("Search products, customers...")}
               value={searchQ}
               onChange={handleSearchChange}
               onFocus={() => { if (searchQ.trim()) setShowSearchDD(true); }}
@@ -183,16 +178,16 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
                 {searchLoading ? (
                   <div className="flex items-center justify-center gap-2 py-5 text-sm text-gray-500">
                     <div className="w-4 h-4 border-2 border-gray-300 border-t-[#1E3A8A] rounded-full animate-spin" />
-                    Searching…
+                    {t("Searching...")}
                   </div>
                 ) : totalResults === 0 ? (
-                  <div className="py-6 text-center text-sm text-gray-400">No results found</div>
+                  <div className="py-6 text-center text-sm text-gray-400">{t("No results found")}</div>
                 ) : (
                   <>
                     {/* Products */}
                     {searchResults.products.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 pt-2.5 pb-1">Products</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 pt-2.5 pb-1">{t("Products")}</p>
                         {searchResults.products.map((p) => (
                           <button key={p._id} onMouseDown={() => goTo(`/dashboard/pos`)}
                             className="w-full flex items-center gap-3 px-3 py-2 hover:bg-blue-50 transition-colors text-left">
@@ -217,7 +212,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
                     {/* Customers */}
                     {searchResults.customers.length > 0 && (
                       <div className={searchResults.products.length > 0 ? "border-t border-gray-100" : ""}>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 pt-2.5 pb-1">Customers</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 pt-2.5 pb-1">{t("Customers")}</p>
                         {searchResults.customers.map((c) => (
                           <button key={c._id} onMouseDown={() => goTo(`/dashboard/customers`)}
                             className="w-full flex items-center gap-3 px-3 py-2 hover:bg-blue-50 transition-colors text-left">
@@ -228,7 +223,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
                               <p className="text-sm font-medium text-gray-800 truncate">{c.name}</p>
                               <p className="text-xs text-gray-400">{c.phone || c.mobile || "—"}</p>
                             </div>
-                            <span className="text-xs text-gray-400 shrink-0">Customer</span>
+                            <span className="text-xs text-gray-400 shrink-0">{t("Customer")}</span>
                           </button>
                         ))}
                       </div>
@@ -237,7 +232,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
                     {/* Suppliers */}
                     {searchResults.suppliers.length > 0 && (
                       <div className={(searchResults.products.length + searchResults.customers.length) > 0 ? "border-t border-gray-100" : ""}>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 pt-2.5 pb-1">Suppliers</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 pt-2.5 pb-1">{t("Suppliers")}</p>
                         {searchResults.suppliers.map((s) => (
                           <button key={s._id} onMouseDown={() => goTo(`/dashboard/suppliers`)}
                             className="w-full flex items-center gap-3 px-3 py-2 hover:bg-blue-50 transition-colors text-left">
@@ -248,7 +243,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
                               <p className="text-sm font-medium text-gray-800 truncate">{s.name}</p>
                               <p className="text-xs text-gray-400">{s.phone || s.mobile || "—"}</p>
                             </div>
-                            <span className="text-xs text-gray-400 shrink-0">Supplier</span>
+                            <span className="text-xs text-gray-400 shrink-0">{t("Suppliers")}</span>
                           </button>
                         ))}
                       </div>
@@ -262,7 +257,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
           {/* ── Fullscreen ── */}
           <button
             onClick={toggleFullscreen}
-            title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+            title={isFullscreen ? t("Exit fullscreen") : t("Fullscreen")}
             className="hidden md:flex p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 hover:text-[#1E3A8A]"
           >
             {isFullscreen ? (
@@ -279,7 +274,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
           {/* ── Calculator ── */}
           <button
             onClick={() => setShowCalc(true)}
-            title="Calculator"
+            title={t("Calculator")}
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 hover:text-[#1E3A8A]"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -290,20 +285,20 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
           {/* ── Refresh ── */}
           <button
             onClick={handleRefresh}
-            title="Refresh page"
+            title={t("Refresh page")}
             className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-100 text-gray-600 hover:text-[#1E3A8A]`}
           >
             <svg className={`w-4 h-4 shrink-0 ${refreshing ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            <span className="hidden md:inline">Refresh</span>
+            <span className="hidden md:inline">{t("Refresh")}</span>
           </button>
 
           {/* ── Language ── */}
           <div className="relative" ref={langRef}>
             <button
               onClick={() => setShowLang((v) => !v)}
-              title="Change language"
+              title={t("Change language")}
               className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-100 ${showLang ? "bg-gray-100 text-[#1E3A8A]" : "text-gray-600"}`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,18 +309,18 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
 
             {showLang && (
               <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden py-1">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 py-1.5">Select Language</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-3 py-1.5">{t("Select Language")}</p>
                 {LANGUAGES.map((l) => (
                   <button
                     key={l.code}
                     onClick={() => selectLang(l.code)}
                     className={`w-full flex items-center gap-3 px-3 py-2 text-sm transition-colors hover:bg-gray-50 ${
-                      lang === l.code ? "text-[#1E3A8A] font-semibold bg-blue-50" : "text-gray-700"
+                      language === l.code ? "text-[#1E3A8A] font-semibold bg-blue-50" : "text-gray-700"
                     }`}
                   >
                     <span className="text-base">{l.flag}</span>
-                    <span>{l.label}</span>
-                    {lang === l.code && (
+                      <span>{t(l.label)}</span>
+                      {language === l.code && (
                       <svg className="w-3.5 h-3.5 ml-auto text-[#1E3A8A]" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
@@ -339,7 +334,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
           {/* ── Notification / Stock ── */}
           <button
             onClick={onToggleStock}
-            title="Stock overview"
+            title={t("Stock overview")}
             className={`relative p-2 rounded-lg transition-colors hover:bg-gray-100 ${showStock ? "bg-gray-100 text-[#1E3A8A]" : "text-gray-600"}`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,7 +383,7 @@ export default function Header({ showStock, onToggleStock, onMenuClick }) {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
-                  Sign Out
+                  {t("Sign Out")}
                 </button>
               </div>
             )}

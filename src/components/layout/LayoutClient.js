@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import DashboardShell from "./DashboardShell";
 import { SettingsProvider } from "@/lib/SettingsContext";
 import { AuthProvider, useAuth } from "@/lib/AuthContext";
+import { LanguageProvider } from "@/lib/LanguageContext";
 import { cacheUtils } from "@/lib/api";
 
 function AuthGuard({ children }) {
@@ -38,20 +39,22 @@ export default function LayoutClient({ children }) {
   return (
     <AuthProvider>
       <AuthGuard>
-        <SettingsProvider>
-          <div className="flex h-screen bg-gray-50 overflow-hidden">
-            {/* Mobile backdrop overlay */}
-            {mobileOpen && (
-              <div
-                className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-                onClick={() => setMobileOpen(false)}
-                aria-hidden="true"
-              />
-            )}
-            <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-            <DashboardShell onMenuClick={() => setMobileOpen(true)}>{children}</DashboardShell>
-          </div>
-        </SettingsProvider>
+        <LanguageProvider>
+          <SettingsProvider>
+            <div className="flex h-screen bg-gray-50 overflow-hidden">
+              {/* Mobile backdrop overlay */}
+              {mobileOpen && (
+                <div
+                  className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+                  onClick={() => setMobileOpen(false)}
+                  aria-hidden="true"
+                />
+              )}
+              <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+              <DashboardShell onMenuClick={() => setMobileOpen(true)}>{children}</DashboardShell>
+            </div>
+          </SettingsProvider>
+        </LanguageProvider>
       </AuthGuard>
     </AuthProvider>
   );
