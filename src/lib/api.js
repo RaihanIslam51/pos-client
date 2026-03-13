@@ -213,7 +213,8 @@ export const api = {
   adjustStock: (data) => fetchAPI("/inventory/adjust", { method: "POST", body: JSON.stringify(data) }),
 
   // Reports
-  getDashboardStats: () => fetchAPI("/reports/dashboard"),
+  getDashboardStats: (forceFresh = false) =>
+    fetchAPI(forceFresh ? `/reports/dashboard?ts=${Date.now()}` : "/reports/dashboard"),
   getSalesReport: (params = "") => fetchAPI(`/reports/sales${params}`),
   getTopProducts: () => fetchAPI("/reports/top-products"),
   getMonthlySalesChart: (params = "") => fetchAPI(`/reports/monthly-chart${params}`),
